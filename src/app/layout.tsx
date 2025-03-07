@@ -14,11 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Uni-traffic",
+  title: "UniTraffic",
   description: "New Era University Campus Vehicle Management",
-  icons: {
-    icon: "public/neu-logo.png"
-  }
 };
 
 export default function RootLayout({

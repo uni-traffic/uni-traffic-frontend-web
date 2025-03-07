@@ -3,7 +3,7 @@ import Link from "next/link";
 export const Header = () => {
   return (
     <div className="w-full h-[10vh] bg-white flex px-10 justify-between min-w-[500px]">
-      <div className="h-full flex justify-center items-center">
+      <div className="h-full flex justify-center items-center py-2">
         <img
           src="/neu-logo.png"
           alt="NEU Logo"
