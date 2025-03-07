@@ -26,7 +26,7 @@ function Login() {
       <div className="flex justify-center items-center w-screen h-screen">
         <div className="flex justify-center items-center w-[90vw] h-full">
           {/* uni traffic title */}
-          <div className="flex flex-col items-center gap-5 text-center m-10">
+          <div className="flex-col items-center gap-5 text-center m-10  md: hidden lg:flex ">
             <div className="bg-[url('/uniTrafficLogo.png')] bg-cover bg-center bg-no-repeat w-[300px] h-[189px]" />
             <p className="max-w-[600px] text-sm text-black">
               UniTraffic ensures hassle-free vehicle entry at New Era University
@@ -35,7 +35,7 @@ function Login() {
             </p>
           </div>
           {/* login component */}
-          <div className=" bg-opacity-10 bg-[rgba(255,255,255,0.77)]  mr-10 p-10 pt-3.5 flex flex-col gap-4">
+          <div className=" bg-opacity-10 bg-[rgba(255,255,255,0.77)]  mr-0 lg:mr-10 p-10 pt-3.5 flex flex-col gap-4 ">
             <img
               src="/neu-logo.png"
               alt="NEU Logo"
