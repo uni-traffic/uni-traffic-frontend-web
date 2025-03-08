@@ -52,7 +52,7 @@ export const AppSidebar = () => {
 			<Separator />
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>menu</SidebarGroupLabel>
+					<SidebarGroupLabel>Menu</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (

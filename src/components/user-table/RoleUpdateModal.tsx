@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 import UserAvatar from "./UserAvatar";
 import { Role, User } from "@/lib/types";
-
-
 
 interface RoleUpdateModalProps {
   user: User | null;
@@ -18,7 +27,7 @@ const roles: { value: Role; label: string }[] = [
   { value: "security", label: "Security" },
   { value: "guest", label: "Guest" },
   { value: "staff", label: "Staff" },
-  { value: "student", label: "Student" },
+  { value: "student", label: "Student" }
 ];
 
 const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModalProps) => {
@@ -45,7 +54,7 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
         <DialogHeader>
           <DialogTitle className="text-center">Update User Role</DialogTitle>
         </DialogHeader>
-        
+
         <div className="flex flex-col items-center space-y-4 my-4">
           <UserAvatar src={user.avatar} name={user.name} className="h-16 w-16" />
           <div className="text-center">
@@ -73,16 +82,11 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
         </div>
 
         <DialogFooter className="sm:justify-center gap-2 mt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="w-full sm:w-auto"
-          >
+          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             onClick={handleSubmit}
             disabled={!selectedRole || selectedRole === user.role}
             className="w-full sm:w-auto"

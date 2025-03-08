@@ -1,16 +1,13 @@
 import { ChevronsUpDown } from "lucide-react";
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
-
 
 const user = {
 	name: "shadcn",
 	email: "m@example.com",
 	image: "https://avatars.githubusercontent.com/u/69845074",
 };
-
 
 export const SidebarUserProfile = () => {
 
@@ -32,7 +29,6 @@ export const SidebarUserProfile = () => {
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="rounded-lg" side={"top"} sideOffset={4} align="end">
-						<DropdownMenuSeparator />
 						<DropdownMenuItem>Log Out</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

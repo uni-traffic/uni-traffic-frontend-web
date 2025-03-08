@@ -1,14 +1,18 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User } from "@/lib/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import type { User } from "@/lib/types";
 import SearchInput from "@/components/user-table/SearchInput";
 import UsersTable from "@/components/user-table/UsersTable";
 import { users as initialUsers } from "@/lib/users";
-
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>(initialUsers);
@@ -16,7 +20,6 @@ const UsersPage = () => {
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
 
   const handleSearch = () => {
-   
     if (!searchQuery.trim()) {
       setUsers(initialUsers);
       return;
@@ -32,7 +35,7 @@ const UsersPage = () => {
 
   const handleStatusFilter = (role: string | null) => {
     setRoleFilter(role);
-    
+
     if (!role) {
       setUsers(initialUsers);
       return;
@@ -43,9 +46,7 @@ const UsersPage = () => {
   };
 
   const handleUpdateUser = (userId: string, updates: Partial<User>) => {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === userId ? { ...user, ...updates } : user))
-    );
+    setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, ...updates } : user)));
   };
 
   return (
@@ -64,7 +65,7 @@ const UsersPage = () => {
             placeholder="Search..."
           />
         </div>
-        
+
         <div className="flex items-center gap-2 self-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -74,18 +75,12 @@ const UsersPage = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
-                All role
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter(null)}>All role</DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleStatusFilter("security")}>
                 Security
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("staff")}>
-                Staff
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("guest")}>
-                Guest
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("staff")}>Staff</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("guest")}>Guest</DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleStatusFilter("student")}>
                 Student
               </DropdownMenuItem>
