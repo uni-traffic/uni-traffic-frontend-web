@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import api from "@/api/axios";
 import type { LoginResponse, User } from "@/lib/types";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { AxiosError, AxiosResponse } from "axios";
-import api from "@/api/axios";
 import { useRouter } from "next/navigation";
+import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   user: User | null;
@@ -32,21 +32,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getLoggedInUser = async () => {
     try {
-      console.log(api.defaults.baseURL)
+      console.log(api.defaults.baseURL);
       const response = await api.get("/user/me");
       if (response.status !== 200) {
         return;
       }
-      const responseData = response.data;
-      if (responseData) {
-        setUser(responseData as User);
-        return;
-      }
 
-      router.replace("/auth/login");
+      const responseData = response.data;
+      setUser(responseData as User);
     } catch (error) {
-      console.log(error);
-      router.replace("/auth/login");
+      const err = error as AxiosError;
+
+      console.log(err.response);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +101,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       router.replace("/dashboard");
     } catch (err) {
+      console.log(err);
       const error = err as AxiosError;
+      console.log(error.response?.data);
 
       if (error.status === 401) {
         setError("Invalid login, please try again");

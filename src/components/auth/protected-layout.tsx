@@ -5,7 +5,7 @@ import { type ReactNode, useEffect } from "react";
 import { useAuth } from "@/context/auth-context";
 import { LoadingScreen } from "@/components/common/loading-screen";
 
-export default function ProtectedLayout({ children }: { children: ReactNode }) {
+export const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
