@@ -15,9 +15,5 @@ export const RedirectToDashboard = ({ children }: { children: ReactNode }) => {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading) {
-    return <LoadingScreen enableBackground={true} />;
-  }
-
-  return <>{children}</>;
+  return <>{!isLoading && !user ? children : <LoadingScreen enableBackground={true} />}</>;
 };
