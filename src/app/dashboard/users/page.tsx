@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Filter } from "lucide-react";
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,20 +8,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import type { Role, User } from "@/lib/types";
 import SearchInput from "@/components/user-table/search-input";
 import UsersTable from "@/components/user-table/user-table";
-import api from "@/api/axios";
+import type { Role, User } from "@/lib/types";
+import { Filter } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 const roles: { value: Role; label: string }[] = [
+  { value: "SUPERADMIN", label: "SUPERADMIN" },
   { value: "ADMIN", label: "ADMIN" },
   { value: "CASHIER", label: "CASHIER" },
   { value: "SECURITY", label: "SECURITY" },
   { value: "STUDENT", label: "STUDENT" },
   { value: "STAFF", label: "STAFF" },
-  { value: "GUEST", label: "GUEST" },
+  { value: "GUEST", label: "GUEST" }
   // { value: "UNVERIFIED", label: "UNVERIFIED" },
-  { value: "SUPERADMIN", label: "SUPERADMIN" }
 ];
 
 const UsersPage = () => {

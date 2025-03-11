@@ -1,7 +1,10 @@
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const api = axios.create({
-  baseURL: "https://uni-traffic-backend.vercel.app/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
   headers: {
     "Content-Type": "application/json"
   }

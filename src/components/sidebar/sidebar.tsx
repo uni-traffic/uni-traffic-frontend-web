@@ -44,22 +44,12 @@ const items = [
     title: "Settings",
     url: "/dashboard/settings",
     icon: Settings2,
-    accessRole: [
-      "ADMIN",
-      "CASHIER",
-      "SECURITY",
-      "STUDENT",
-      "STAFF",
-      "GUEST",
-      "UNVERIFIED",
-      "SUPERADMIN"
-    ]
+    accessRole: []
   }
 ];
 
 export const AppSidebar = () => {
   const { state, toggleSidebar } = useSidebar();
-
   const { user } = useAuth();
 
   return (
@@ -67,7 +57,7 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between pl-1">
-            <div className={`${state === "collapsed" ? "hidden" : "flex gap-x-4"}`}>
+            <div className={`${state === "collapsed" ? "hidden" : "flex items-center gap-x-2"}`}>
               <img src="/neu-logo.png" alt="NEU Logo" className="w-[30px] h-[30px]" />
               <h3 className="truncate font-semibold text-2xl">{user?.role}</h3>
             </div>

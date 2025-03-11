@@ -1,6 +1,6 @@
 import { useState } from "react";
 import RoleUpdateModal from "./role-update-modal";
-import type { Role, User } from "@/lib/types";
+import type { User } from "@/lib/types";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
@@ -29,7 +29,7 @@ const UsersTable = ({ users, onUpdateUser }: UsersTableProps) => {
     setIsRoleModalOpen(true);
   };
 
-  const handleUpdateRole = (userId: string, role: Role) => {
+  const handleUpdateRole = (userId: string, role: string) => {
     onUpdateUser(userId, { role });
   };
 

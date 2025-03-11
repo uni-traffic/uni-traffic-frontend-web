@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import api from "@/api/axios";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,23 +9,23 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import UserAvatar from "./user-avatar";
-import type { Role, User } from "@/lib/types";
-import api from "@/api/axios";
 import { useAuth } from "@/context/auth-context";
+import type { Role, User } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import UserAvatar from "./user-avatar";
 
 interface RoleUpdateModalProps {
   user: User | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateRole: (userId: string, role: Role) => void;
+  onUpdateRole: (userId: string, role: string) => void;
 }
 
 const roles: { value: Role; label: string }[] = [
@@ -39,10 +40,14 @@ const roles: { value: Role; label: string }[] = [
 ];
 
 const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModalProps) => {
-  const [selectedRole, setSelectedRole] = useState<Role | null>((user?.role as Role) || null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(user?.role || null);
   const { user: authUser } = useAuth();
 
   const handleSubmit = async () => {
+    if (user?.role === selectedRole) return;
+    setIsLoading(true);
+
     try {
       const response = await api.post("/user/update/role", {
         userId: user?.id,
@@ -53,6 +58,7 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
     } catch (err) {
       console.log(err);
     } finally {
+      setIsLoading(false);
       onClose();
     }
 
@@ -62,11 +68,9 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
     }
   };
 
-  useState(() => {
-    if (user) {
-      setSelectedRole(user.role as Role);
-    }
-  });
+  useEffect(() => {
+    if (user) setSelectedRole(user.role);
+  }, [user]);
 
   if (!user) {
     return null;
@@ -96,7 +100,7 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="w-full text-left">
-                {roles.find((role) => role.value === selectedRole)?.label || "Select a role"}
+                {selectedRole ? selectedRole : "Select a role"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-100">
@@ -124,7 +128,14 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
             disabled={!selectedRole || selectedRole === user.role}
             className="w-full sm:w-auto"
           >
-            Update Role
+            {isLoading ? (
+              <div className="flex">
+                <Loader2 className="animate-spin" />
+                "Please wait"
+              </div>
+            ) : (
+              "Update Role"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
