@@ -131,7 +131,7 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
             {isLoading ? (
               <div className="flex">
                 <Loader2 className="animate-spin" />
-                "Please wait"
+                Updating Role
               </div>
             ) : (
               "Update Role"

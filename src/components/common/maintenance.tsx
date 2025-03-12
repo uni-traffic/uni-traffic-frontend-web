@@ -16,13 +16,15 @@ export const MaintenanceWrapper = ({ children }: Readonly<{ children: ReactNode 
         <FileCode2 className="text-black w-24 h-24 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
 
         {/* Message */}
-        <h1 className="text-4xl font-bold text-black mb-2">We're Currently Under Maintenance</h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <h1 className="text-4xl font-bold text-black mb-2 text-center">
+          We're Currently Under Maintenance
+        </h1>
+        <p className="text-lg text-gray-600 mb-8  text-center">
           Our team is working hard to improve the site. Please check back soon!
         </p>
 
         {/* Footer */}
-        <footer className="absolute bottom-8 text-gray-700 text-sm">
+        <footer className="absolute bottom-8 text-gray-700 text-sm text-center">
           <p>
             &copy; 2025 Uni-Traffic. This is not an Official Website or Service of New Era
             University.
