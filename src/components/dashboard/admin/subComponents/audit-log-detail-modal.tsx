@@ -1,11 +1,4 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { IViolationRecordAuditLogDTO } from "@/lib/mockdata";
 import { format } from "date-fns";
 
@@ -15,7 +8,7 @@ interface UserDetailModalProps {
   auditLog: IViolationRecordAuditLogDTO | null;
 }
 
-const UserDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) => {
+const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) => {
   if (!auditLog) return null;
 
   return (
@@ -29,7 +22,7 @@ const UserDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) =>
         </DialogHeader>
 
         <div className="space-y-4">
-          <h3 className="font-medium text-lg">Details</h3>
+          <h3 className="font-medium text-lg">Audit Log Details</h3>
 
           <div className="space-y-2">
             <div className="flex justify-between">
@@ -39,7 +32,7 @@ const UserDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) =>
 
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email:</span>
-              <span>{auditLog.actor?.email}</span>
+              <span>{auditLog.actor?.email.toLowerCase()}</span>
             </div>
 
             <div className="flex justify-between">
@@ -65,15 +58,9 @@ const UserDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) =>
             </div>
           </div>
         </div>
-
-        <DialogFooter>
-          <Button type="button" className="w-full bg-gray-800 hover:bg-gray-700" onClick={onClose}>
-            Confirm
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default UserDetailModal;
+export default AuditLogDetailModal;

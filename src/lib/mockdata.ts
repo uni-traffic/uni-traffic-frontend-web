@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 
 const generateUser = (): IUserDTO => ({
   id: faker.string.uuid(),
-  username: faker.internet.userName(),
+  username: faker.internet.username(),
   email: faker.internet.email(),
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),

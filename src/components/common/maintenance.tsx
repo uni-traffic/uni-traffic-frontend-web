@@ -17,7 +17,7 @@ export const MaintenanceWrapper = ({ children }: Readonly<{ children: ReactNode 
 
         {/* Message */}
         <h1 className="text-4xl font-bold text-black mb-2 text-center">
-          We're Currently Under Maintenance
+          We're Currently Undergoing Maintenance
         </h1>
         <p className="text-lg text-gray-600 mb-8  text-center">
           Our team is working hard to improve the site. Please check back soon!

@@ -8,35 +8,34 @@ import {
 } from "@/components/ui/table";
 import type { IViolationRecordAuditLogDTO } from "@/lib/mockdata";
 import { format } from "date-fns";
-import UserAvatar from "../user-table/user-avatar";
+import UserAvatar from "../../../user-table/user-avatar";
 import StatusBadge from "./status-badge";
 
 interface UserTableProps {
   auditLogData: IViolationRecordAuditLogDTO[];
-  onUserSelect: (auditLogData: IViolationRecordAuditLogDTO) => void;
+  onAuditLogSelect: (auditLogData: IViolationRecordAuditLogDTO) => void;
 }
 
-const UserTable = ({ auditLogData, onUserSelect }: UserTableProps) => {
+const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[150px]">Actor</TableHead>
-            <TableHead className="w-[100px]">Type</TableHead>
-            <TableHead className="w-[150px]">Details</TableHead>
+            <TableHead className="max-w-[10vw]">User</TableHead>
+            <TableHead className="">Type</TableHead>
+            <TableHead className="max-w-[10vw]">Details</TableHead>
             <TableHead className="text-left">Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {auditLogData.map((auditLog, index) => (
+          {auditLogData.map((auditLog) => (
             <TableRow
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              key={index}
+              key={auditLog.id}
               className="cursor-pointer transition-colors hover:bg-muted/50"
-              onClick={() => onUserSelect(auditLog)}
+              onClick={() => onAuditLogSelect(auditLog)}
             >
-              <TableCell>
+              <TableCell className="max-w-[15vw]">
                 <div className="flex items-center gap-3">
                   <UserAvatar
                     src={auditLog.actor?.role}
@@ -54,8 +53,8 @@ const UserTable = ({ auditLogData, onUserSelect }: UserTableProps) => {
               <TableCell>
                 <StatusBadge status={auditLog.auditLogType} />
               </TableCell>
-              <TableCell>
-                <p className="truncate w-[30vw]">{auditLog.details}</p>
+              <TableCell className="max-w-[10vw]">
+                <p className="truncate w-[10vw]">{auditLog.details}</p>
               </TableCell>
               <TableCell className="text-left">
                 {format(auditLog.createdAt, "MMM dd, yyyy hh:mm:ss a")}
@@ -68,4 +67,4 @@ const UserTable = ({ auditLogData, onUserSelect }: UserTableProps) => {
   );
 };
 
-export default UserTable;
+export default AuditLogTable;
