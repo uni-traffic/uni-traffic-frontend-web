@@ -5,12 +5,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import SearchInput from "@/components/violation-table/search-input";
 import ViolationsTable from "@/components/violation-table/violation-table";
-import { ViolationRecord } from "@/lib/types";
 import { violationRecordData } from "@/lib/mockdata";
+import type { ViolationRecord } from "@/lib/types";
 import { Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -18,28 +18,31 @@ const statusOptions = [
   { value: "ALL", label: "All" },
   { value: "Pending", label: "Pending" },
   { value: "Resolved", label: "Resolved" },
-  { value: "Dismissed", label: "Dismissed" },
+  { value: "Dismissed", label: "Dismissed" }
 ];
-const CashierDashboard = () => {
-  const [originalViolations, setOriginalViolations] = useState<ViolationRecord[]>(violationRecordData);
-  const [displayedViolations, setDisplayedViolations] = useState<ViolationRecord[]>(violationRecordData);
+
+export const CashierDashboard = () => {
+  const [originalViolations, setOriginalViolations] =
+    useState<ViolationRecord[]>(violationRecordData);
+  const [displayedViolations, setDisplayedViolations] =
+    useState<ViolationRecord[]>(violationRecordData);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const handleSearch = useCallback(() => {
     let filtered = originalViolations;
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase();
-    filtered = filtered.filter((v) => {
-      const owner = v.vehicle?.owner; 
-      return (
-        v.id.includes(query) ||
-        (owner?.firstName && owner.firstName.toLowerCase().includes(query)) ||
-        (owner?.lastName && owner.lastName.toLowerCase().includes(query)) ||
-        (owner?.username && owner.username.toLowerCase().includes(query))
-      );
-    });
-  }
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((v) => {
+        const owner = v.vehicle?.owner;
+        return (
+          v.id.includes(query) ||
+          owner?.firstName?.toLowerCase().includes(query) ||
+          owner?.lastName?.toLowerCase().includes(query) ||
+          owner?.username?.toLowerCase().includes(query)
+        );
+      });
+    }
     if (statusFilter !== "ALL") {
       filtered = filtered.filter((v) => v.status === statusFilter);
     }
@@ -96,5 +99,3 @@ const CashierDashboard = () => {
     </div>
   );
 };
-
-export default CashierDashboard;

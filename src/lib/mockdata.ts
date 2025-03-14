@@ -31,7 +31,7 @@ const generateVehicle = (): IVehicleDTO => ({
   owner: generateUser()
 });
 
-const generateViolationRecord = (): IViolationRecordDTO => {
+export const generateViolationRecord = (): IViolationRecordDTO => {
   const user = generateUser();
   const reporter = generateUser();
   const violation = generateViolation();
@@ -88,10 +88,10 @@ export interface IViolationRecordDTO {
   status: string;
   remarks: string;
   date: string;
-  user: IUserDTO ;
-  reporter: IUserDTO ;
-  violation: IViolationDTO ;
-  vehicle: IVehicleDTO ;
+  user: IUserDTO;
+  reporter: IUserDTO;
+  violation: IViolationDTO;
+  vehicle: IVehicleDTO;
 }
 
 export interface IViolationDTO {
@@ -111,9 +111,9 @@ export interface IVehicleDTO {
   color: string;
   type: string;
   images: string[];
-  isActive: boolean; 
+  isActive: boolean;
   stickerNumber: string;
-  owner: IUserDTO ;
+  owner: IUserDTO;
 }
 
 export interface IViolationRecordAuditLogDTO {
