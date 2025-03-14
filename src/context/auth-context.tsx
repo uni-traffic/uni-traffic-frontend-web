@@ -32,18 +32,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getLoggedInUser = async () => {
     try {
+      if (process.env.NODE_ENV === "development") {
+        setUser({
+          id: "123",
+          username: "dev_user",
+          email: "dev@example.com",
+          firstName: "Dev",
+          lastName: "User",
+          role: "SUPERADMIN"
+        });
+        setIsLoading(false);
+        return;
+      }
+  
       console.log(api.defaults.baseURL);
       const response = await api.get("/user/me");
+  
       if (response.status !== 200) {
         return;
       }
-
+  
       const responseData = response.data;
       setUser(responseData as User);
     } catch (error) {
-      const err = error as AxiosError;
-
-      console.log(err.response);
+      console.log(error);
       setUser(null);
     } finally {
       setIsLoading(false);
