@@ -59,7 +59,6 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
           {violations.map((record) => {
             const user = record.user;
             const violation = record.violation;
-            const isPaid = record.status === "PAID";
 
             return (
               <tr key={record.id} className="bg-card hover:bg-muted/50 transition-colors">
@@ -85,12 +84,12 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
                     <Button variant="outline" className="font-semibold" onClick={() => handleViolationClick(record)}>ADD PAYMENT</Button>
                   ) : (
                     <span className="flex flex-col gap-0.5 text-center text-xs ">
-                        <div className="font-bold">
+                        <p className="font-bold">
                             PAID ON
-                        </div>
-                        <text className="">
+                        </p>
+                        <p className="">
                             {getTimeNow()}
-                        </text>
+                        </p>
                         <a href="#" className="underline text-blue-500">Print Receipt</a>
                     </span>
                   )}

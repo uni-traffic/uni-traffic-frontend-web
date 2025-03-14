@@ -16,8 +16,9 @@ import { useCallback, useEffect, useState } from "react";
 
 const statusOptions = [
   { value: "ALL", label: "All" },
-  { value: "UNPAID", label: "Unpaid" },
-  { value: "PAID", label: "Paid" },
+  { value: "Pending", label: "Pending" },
+  { value: "Resolved", label: "Resolved" },
+  { value: "Dismissed", label: "Dismissed" },
 ];
 const CashierDashboard = () => {
   const [originalViolations, setOriginalViolations] = useState<ViolationRecord[]>(violationRecordData);
@@ -27,12 +28,18 @@ const CashierDashboard = () => {
 
   const handleSearch = useCallback(() => {
     let filtered = originalViolations;
-    if (searchQuery.trim()) {
-      filtered = filtered.filter((v) =>
-        v.id.includes(searchQuery) ||
-        v.user?.username.toLowerCase().includes(searchQuery.toLowerCase())
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter((v) => {
+      const owner = v.vehicle?.owner; 
+      return (
+        v.id.includes(query) ||
+        (owner?.firstName && owner.firstName.toLowerCase().includes(query)) ||
+        (owner?.lastName && owner.lastName.toLowerCase().includes(query)) ||
+        (owner?.username && owner.username.toLowerCase().includes(query))
       );
-    }
+    });
+  }
     if (statusFilter !== "ALL") {
       filtered = filtered.filter((v) => v.status === statusFilter);
     }
