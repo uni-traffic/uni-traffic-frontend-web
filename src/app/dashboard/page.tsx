@@ -1,5 +1,5 @@
 "use client";
-import { CashierDashboard } from "@/components/cashier/CashierDashboard";
+import { CashierDashboard } from "@/components/cashier/cashier-dashboard";
 import { AdminDashboard } from "@/components/dashboard/admin/admin-dashboard";
 import { useAuth } from "@/context/auth-context";
 

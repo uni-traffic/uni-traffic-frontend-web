@@ -16,9 +16,8 @@ import { useCallback, useEffect, useState } from "react";
 
 const statusOptions = [
   { value: "ALL", label: "All" },
-  { value: "Pending", label: "Pending" },
-  { value: "Resolved", label: "Resolved" },
-  { value: "Dismissed", label: "Dismissed" }
+  { value: "UNPAID", label: "UNPAID" },
+  { value: "PAID", label: "PAID" }
 ];
 
 export const CashierDashboard = () => {
