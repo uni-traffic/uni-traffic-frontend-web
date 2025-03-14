@@ -89,6 +89,12 @@ const CashierDashboard = () => {
     handleSearch();
   }, [handleSearch]);
 
+  const handleUpdateViolation = (id : string, updates: Partial<ViolationRecord>) => {
+      setDisplayedViolations((prev) =>
+        prev.map((ViolationRecord) => (ViolationRecord.id === id ? { ...ViolationRecord, ...updates } : ViolationRecord))
+      );
+    };
+
   return (
     <div className="p-6 max-w-[1200px] mx-auto animate-fade-in">
       <div className="mb-8">
@@ -125,7 +131,7 @@ const CashierDashboard = () => {
         </div>
       </div>
 
-      <ViolationsTable violations={displayedViolations} />
+      <ViolationsTable violations={displayedViolations} onUpdateViolation={handleUpdateViolation}/>
     </div>
   );
 };

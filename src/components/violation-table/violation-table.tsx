@@ -3,14 +3,28 @@ import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import type { ViolationRecord } from "@/lib/types";
+import ViolationPaymentModal from "./violation-payment-modal";
+
 
 interface ViolationsTableProps {
   violations: ViolationRecord[];
+  onUpdateViolation: (id : string, updates: Partial<ViolationRecord>) => void
 }
 
-const ViolationsTable = ({ violations }: ViolationsTableProps) => {
+const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps) => {
+  const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
+  const [selectedViolation, setSelectedViolation] = useState<ViolationRecord | null>(null);
 
+  const handleViolationClick = (violation: ViolationRecord) => {
+      setSelectedViolation(violation);
+      setIsViolationModalOpen(true);
+  }
+
+  const handleUpdateViolation = (id: string, status: string) => {
+      onUpdateViolation(id, {status});
+  }
   return (
+    <>
     <div className="relative rounded-md border overflow-hidden">
       <table className="w-full text-sm">
         <thead>
@@ -44,7 +58,7 @@ const ViolationsTable = ({ violations }: ViolationsTableProps) => {
                 </td>
                 <td className="py-3.5 px-4 text-center">
                   {!isPaid ? (
-                    <Button variant="outline" className="font-semibold">ADD PAYMENT</Button>
+                    <Button variant="outline" className="font-semibold" onClick={() => handleViolationClick(record)}>ADD PAYMENT</Button>
                   ) : (
                     <span className="flex flex-col gap-0.5 text-center text-xs ">
                         <text className=" font-bold">
@@ -63,6 +77,13 @@ const ViolationsTable = ({ violations }: ViolationsTableProps) => {
         </tbody>
       </table>
     </div>
+    <ViolationPaymentModal
+        isOpen={isViolationModalOpen}
+        onClose={() => setIsViolationModalOpen(false)}
+        violation={selectedViolation}
+        onUpdateViolation={handleUpdateViolation}
+    />
+    </>
   );
 };
 
