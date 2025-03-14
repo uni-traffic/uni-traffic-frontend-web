@@ -30,7 +30,7 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="py-3 px-4 text-left font-medium">Users</th>
-            <th className="py-3 px-4 text-left font-medium">Violation ID</th>
+            <th className="py-3 px-4 text-left font-medium">Violation Record ID</th>
             <th className="py-3 px-4 text-left font-medium">Violation Information</th>
             <th className="py-3 px-4 text-left font-medium">Date Created</th>
             <th className="py-3 px-4 text-center font-medium">Status</th>
@@ -48,12 +48,12 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
                   <div className="font-medium">{user?.firstName} {user?.lastName}</div>
                   <div className="text-xs text-gray-500">{user?.email}</div>
                 </td>
-                <td className="py-3.5 px-4 font-bold">{violation?.id}</td>
-                <td className="py-3.5 px-4">{violation?.violationName}</td>
+                <td className="py-3.5 px-4 font-bold">{record.id}</td>
+                <td className="py-3.5 px-4">{record.violation?.category}</td>
                 <td className="py-3.5 px-4">{record.date}</td>
                 <td className="py-3.5 px-4 font-bold text-center">
-                  <span className={`px-2 py-1 rounded text-white ${isPaid ? "bg-green-500" : "bg-red-500"}`}>
-                    {isPaid ? "PAID" : "UNPAID"}
+                  <span className={`px-2 py-1 rounded text-white ${record.status === "Pending" ? "bg-red-500" : "bg-green-500"}`}>
+                    {record.status === "Pending" ? "Pending" : "Resolved"}
                   </span>
                 </td>
                 <td className="py-3.5 px-4 text-center">
