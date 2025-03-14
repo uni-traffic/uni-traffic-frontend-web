@@ -1,4 +1,5 @@
 "use client";
+import { CashierDashboard } from "@/components/cashier/cashier-dashboard";
 import { AdminDashboard } from "@/components/dashboard/admin/admin-dashboard";
 import { useAuth } from "@/context/auth-context";
 
@@ -7,6 +8,8 @@ const Dashboard = () => {
 
   return ["ADMIN", "SUPERADMIN"].includes(user?.role || "") ? (
     <AdminDashboard />
+  ) : user?.role === "CASHIER" ? (
+    <CashierDashboard />
   ) : (
     <div className="flex size-full justify-center items-center">Coming Soon!</div>
   );

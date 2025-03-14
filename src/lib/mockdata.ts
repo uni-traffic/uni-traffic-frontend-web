@@ -26,12 +26,12 @@ const generateVehicle = (): IVehicleDTO => ({
   color: faker.vehicle.color(),
   type: faker.helpers.arrayElement(["Sedan", "SUV", "Truck", "Motorcycle"]),
   images: [faker.image.url(), faker.image.url()],
-  status: faker.helpers.arrayElement(["Active", "Inactive", "Banned"]),
+  isActive: faker.datatype.boolean(),
   stickerNumber: faker.string.alphanumeric(10),
   owner: generateUser()
 });
 
-const generateViolationRecord = (): IViolationRecordDTO => {
+export const generateViolationRecord = (): IViolationRecordDTO => {
   const user = generateUser();
   const reporter = generateUser();
   const violation = generateViolation();
@@ -43,7 +43,7 @@ const generateViolationRecord = (): IViolationRecordDTO => {
     reportedById: reporter.id,
     violationId: violation.id,
     vehicleId: vehicle.id,
-    status: faker.helpers.arrayElement(["Pending", "Resolved", "Dismissed"]),
+    status: faker.helpers.arrayElement(["UNPAID", "PAID"]),
     remarks: faker.lorem.sentence(),
     date: faker.date.past().toISOString(),
     user,
@@ -52,7 +52,7 @@ const generateViolationRecord = (): IViolationRecordDTO => {
     vehicle
   };
 };
-
+export const violationRecordData = Array.from({ length: 10 }, generateViolationRecord);
 const generateViolationRecordAuditLog = (): IViolationRecordAuditLogDTO => {
   const actor = generateUser();
   const violationRecord = generateViolationRecord();
@@ -88,10 +88,10 @@ export interface IViolationRecordDTO {
   status: string;
   remarks: string;
   date: string;
-  user: IUserDTO | null;
-  reporter: IUserDTO | null;
-  violation: IViolationDTO | null;
-  vehicle: IVehicleDTO | null;
+  user: IUserDTO;
+  reporter: IUserDTO;
+  violation: IViolationDTO;
+  vehicle: IVehicleDTO;
 }
 
 export interface IViolationDTO {
@@ -111,9 +111,9 @@ export interface IVehicleDTO {
   color: string;
   type: string;
   images: string[];
-  status: string;
+  isActive: boolean;
   stickerNumber: string;
-  owner: IUserDTO | null;
+  owner: IUserDTO;
 }
 
 export interface IViolationRecordAuditLogDTO {
