@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { useAuth } from "@/context/auth-context";
 import type { ViolationRecord } from "@/lib/types";
 import ViolationPaymentModal from "./violation-payment-modal";
 
@@ -20,9 +18,30 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
       setIsViolationModalOpen(true);
   }
 
-  const handleUpdateViolation = (id: string, status: string) => {
-      onUpdateViolation(id, {status});
-  }
+  const handleUpdateViolation = (id: string, updates: Partial<ViolationRecord>) => {
+    onUpdateViolation(id, updates);
+  };
+
+  const formattedDate = (date: string) => 
+    new Date(date).toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    }).replace(" at", ""); ;
+    const getTimeNow = () => 
+        new Date()
+          .toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })
+          .replace(" at", ""); 
   return (
     <>
     <div className="relative rounded-md border overflow-hidden">
@@ -50,22 +69,27 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
                 </td>
                 <td className="py-3.5 px-4 font-bold">{record.id}</td>
                 <td className="py-3.5 px-4">{record.violation?.category}</td>
-                <td className="py-3.5 px-4">{record.date}</td>
+                <td className="py-3.5 px-4 text-xs">{formattedDate(record.date)}</td>
                 <td className="py-3.5 px-4 font-bold text-center">
-                  <span className={`px-2 py-1 rounded text-white ${record.status === "Pending" ? "bg-red-500" : "bg-green-500"}`}>
-                    {record.status === "Pending" ? "Pending" : "Resolved"}
-                  </span>
+                {record.status === "Pending" && (
+                    <div className="text-black font-semibold mb-1">
+                    ₱{violation?.penalty.toLocaleString()}
+                    </div>
+                )}
+                <span className={`px-2 py-1 rounded text-white ${record.status === "Pending" ? "bg-red-500" : "bg-green-500"}`}>
+                    {record.status}
+                </span>
                 </td>
                 <td className="py-3.5 px-4 text-center">
-                  {!isPaid ? (
+                  {record.status === "Pending" ? (
                     <Button variant="outline" className="font-semibold" onClick={() => handleViolationClick(record)}>ADD PAYMENT</Button>
                   ) : (
                     <span className="flex flex-col gap-0.5 text-center text-xs ">
-                        <text className=" font-bold">
+                        <div className="font-bold">
                             PAID ON
-                        </text>
+                        </div>
                         <text className="">
-                            {record.date}
+                            {getTimeNow()}
                         </text>
                         <a href="#" className="underline text-blue-500">Print Receipt</a>
                     </span>

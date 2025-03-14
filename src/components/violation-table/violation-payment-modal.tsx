@@ -10,15 +10,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
-import api from "@/api/axios";
 import type { ViolationRecord } from "@/lib/types";
 
 interface ViolationPaymentModalProps {
   violation: ViolationRecord | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateViolation: (id: string, status: string) => void;
+  onUpdateViolation: (id: string, updates: Partial<ViolationRecord>) => void;
 }
 
 const ViolationPaymentModal = ({
@@ -28,24 +26,38 @@ const ViolationPaymentModal = ({
   onUpdateViolation,
 }: ViolationPaymentModalProps) => {
   const [amount, setAmount] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!violation || !amount) return;
-    setIsLoading(true);
-
-    try {
-      await api.post("/payment/process", {
-        violationId: violation.id,
-        amount: parseFloat(amount),
-      });
-      onUpdateViolation(violation.id, "PAID");
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-      onClose();
+    
+    const paymentAmount = parseFloat(amount);
+    if (isNaN(paymentAmount) || paymentAmount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
     }
+
+    const currentPenalty = violation.violation?.penalty || 0;
+
+    if (paymentAmount > currentPenalty) {
+      alert("Payment cannot exceed the penalty amount.");
+      return;
+    }
+
+    const remainingBalance = currentPenalty - paymentAmount;
+    const newStatus = remainingBalance === 0 ? "Resolved" : "Pending";
+
+    onUpdateViolation(violation.id, {
+      status: newStatus,
+      violation: {
+        ...violation.violation,
+        id: violation.violation?.id || "",
+        penalty: remainingBalance,
+        category: violation.violation?.category || "",
+        violationName: violation.violation?.violationName || "",
+      },
+    });
+
+    onClose();
   };
 
   if (!violation) return null;
@@ -58,16 +70,16 @@ const ViolationPaymentModal = ({
         </DialogHeader>
 
         <div className="space-y-3 text-sm">
-          <p><strong>Payment for:</strong> {violation.user?.firstName} {violation.user?.lastName}</p>
-          <p><strong>Violation ID:</strong> {violation.violation?.id}</p>
-          <p><strong>{violation.violation?.violationName}</strong></p>
-          <p><strong>Balance:</strong> NULL</p>
+          <p>Payment for: {violation.user?.firstName} {violation.user?.lastName}</p>
+          <p>Violation ID: {violation.violation?.id}</p>
+          <p>Violation Category: {violation.violation?.category}</p>
+          <p>Balance: PHP {violation.violation?.penalty.toLocaleString()}</p>
         </div>
 
         <div className="space-y-2">
           <label className="font-medium">Input amount</label>
           <Input
-            type="text"
+            type="number"
             placeholder="PHP 0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -79,13 +91,7 @@ const ViolationPaymentModal = ({
             Cancel
           </Button>
           <Button type="button" onClick={handleSubmit} disabled={!amount} className="w-full sm:w-auto">
-            {isLoading ? (
-              <div className="flex">
-                <Loader2 className="animate-spin" /> Processing...
-              </div>
-            ) : (
-              "Confirm Payment"
-            )}
+            Confirm Payment
           </Button>
         </DialogFooter>
       </DialogContent>
