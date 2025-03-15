@@ -6,14 +6,14 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import type { IViolationRecordAuditLogDTO } from "@/lib/mockdata";
+import type { ViolationRecordAuditLog } from "@/lib/types";
 import { format } from "date-fns";
 import UserAvatar from "../../../user-table/user-avatar";
 import StatusBadge from "./status-badge";
 
 interface UserTableProps {
-  auditLogData: IViolationRecordAuditLogDTO[];
-  onAuditLogSelect: (auditLogData: IViolationRecordAuditLogDTO) => void;
+  auditLogData: ViolationRecordAuditLog[];
+  onAuditLogSelect: (auditLogData: ViolationRecordAuditLog) => void;
 }
 
 const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {

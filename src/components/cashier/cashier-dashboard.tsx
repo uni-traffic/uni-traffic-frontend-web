@@ -1,5 +1,6 @@
 "use client";
 
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,48 +10,77 @@ import {
 } from "@/components/ui/dropdown-menu";
 import SearchInput from "@/components/violation-table/search-input";
 import ViolationsTable from "@/components/violation-table/violation-table";
-import { violationRecordData } from "@/lib/mockdata";
 import type { ViolationRecord } from "@/lib/types";
+import type { AxiosError } from "axios";
 import { Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const statusOptions = [
-  { value: "ALL", label: "All" },
-  { value: "UNPAID", label: "UNPAID" },
-  { value: "PAID", label: "PAID" }
+  { value: "ALL", label: "ALL" },
+  { value: "PAID", label: "PAID" },
+  { value: "UNPAID", label: "UNPAID" }
 ];
 
 export const CashierDashboard = () => {
-  const [originalViolations, setOriginalViolations] =
-    useState<ViolationRecord[]>(violationRecordData);
-  const [displayedViolations, setDisplayedViolations] =
-    useState<ViolationRecord[]>(violationRecordData);
+  const [originalViolations, setOriginalViolations] = useState<ViolationRecord[]>([]);
+  const [displayedViolations, setDisplayedViolations] = useState<ViolationRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
+  const fetchViolationRecords = useCallback(async () => {
+    try {
+      const response = await api.get("/violation-record/search");
+      if (response.status !== 200) return;
+
+      setOriginalViolations(response.data);
+      setDisplayedViolations(response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(`${axiosError.status}: ${message || "User not found"}`);
+    }
+  }, []);
+
   const handleSearch = useCallback(() => {
-    let filtered = originalViolations;
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((v) => {
-        const owner = v.vehicle?.owner;
-        return (
-          v.id.includes(query) ||
-          owner?.firstName?.toLowerCase().includes(query) ||
-          owner?.lastName?.toLowerCase().includes(query) ||
-          owner?.username?.toLowerCase().includes(query)
-        );
-      });
+    if (!searchQuery.trim()) {
+      setDisplayedViolations(originalViolations);
+      return;
     }
-    if (statusFilter !== "ALL") {
-      filtered = filtered.filter((v) => v.status === statusFilter);
-    }
+
+    const filtered = originalViolations.filter(
+      (violation) =>
+        violation.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        violation.user?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        violation.user?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        violation.user?.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     setDisplayedViolations(filtered);
-  }, [searchQuery, statusFilter, originalViolations]);
+  }, [searchQuery, originalViolations]);
+
+  const handleStatusFilter = (filterValue: string) => {
+    setStatusFilter(filterValue);
+
+    if (!filterValue || filterValue === "ALL") {
+      setDisplayedViolations(originalViolations);
+      return;
+    }
+
+    const filtered = originalViolations.filter(
+      (violation) => violation.status.toUpperCase() === filterValue.toUpperCase()
+    );
+    setDisplayedViolations(filtered);
+  };
 
   useEffect(() => {
     handleSearch();
   }, [handleSearch]);
+
+  useEffect(() => {
+    fetchViolationRecords();
+  }, [fetchViolationRecords]);
 
   const handleUpdateViolation = (id: string, updates: Partial<ViolationRecord>) => {
     setDisplayedViolations((prev) =>
@@ -70,7 +100,7 @@ export const CashierDashboard = () => {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            onSearch={handleSearch}
+            onSearch={() => console.log("Search")}
             placeholder="Search User or Violation ID..."
           />
         </div>
@@ -85,7 +115,10 @@ export const CashierDashboard = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {statusOptions.map((option) => (
-                <DropdownMenuItem key={option.value} onClick={() => setStatusFilter(option.value)}>
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => handleStatusFilter(option.value)}
+                >
                   {option.label}
                 </DropdownMenuItem>
               ))}
