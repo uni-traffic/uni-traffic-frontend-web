@@ -1,5 +1,6 @@
 "use client";
 
+import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,11 +10,13 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import type { ViolationRecord } from "@/lib/types";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import type { ViolationRecord, ViolationRecordPayment } from "@/lib/types";
+import type { AxiosError } from "axios";
+import { format } from "date-fns";
+import { Loader } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Receipt from "./violation-receipt";
+import { toast } from "sonner";
+import { Receipt } from "./violation-receipt";
 
 interface ViolationPaymentModalProps {
   violation: ViolationRecord | null;
@@ -28,69 +31,62 @@ const ViolationPaymentModal = ({
   onClose,
   onUpdateViolation
 }: ViolationPaymentModalProps) => {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
-  const [paidAmount, setPaidAmount] = useState(0);
-  const [referenceNo, setReferenceNo] = useState(`REF-${Date.now()}`);
+  const [payment, setPayment] = useState<ViolationRecordPayment | null>(null);
+  const [isProcessing, setProcessing] = useState(false);
+  const [isPaymentEqualAmount, setIsPaymentEqualAmount] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
+  const violationPenalty = violation?.violation?.penalty || 0;
 
   useEffect(() => {
     if (isOpen) {
-      setAmount("");
+      setAmount(0);
       setShowConfirmation(false);
       setShowReceipt(false);
-      setPaidAmount(0);
-      setReferenceNo("referenceNo");
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    setIsPaymentEqualAmount(violationPenalty === amount);
+  }, [amount, violationPenalty]);
+
+  const submitPayment = async () => {
     if (!violation || !amount) return;
 
-    const paymentAmount = Number.parseFloat(amount);
+    const paymentAmount = amount;
     if (Number.isNaN(paymentAmount) || paymentAmount <= 0) {
       alert("Please enter a valid amount.");
       return;
     }
 
-    const currentPenalty = violation.violation?.penalty || 0;
+    setProcessing(true);
 
-    if (paymentAmount > currentPenalty) {
-      alert("Payment cannot exceed the penalty amount.");
-      return;
-    }
-
-    const remainingBalance = currentPenalty - paymentAmount;
-    const newStatus = remainingBalance === 0 ? "Resolved" : "Pending";
-
-    onUpdateViolation(violation.id, {
-      status: newStatus,
-      violation: {
-        ...violation.violation,
-        id: violation.violation?.id || "",
-        penalty: remainingBalance,
-        category: violation.violation?.category || "",
-        violationName: violation.violation?.violationName || ""
-      }
-    });
-
-    setPaidAmount(paymentAmount);
-    setShowConfirmation(true);
-  };
-
-  const handlePrintReceipt = () => {
-    if (receiptRef.current) {
-      html2canvas(receiptRef.current).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const imgWidth = canvas.width * 0.75; // Adjust width (e.g., 75% of the original)
-        const imgHeight = canvas.height * 0.75; // Adjust height (e.g., 75% of the original)
-
-        const doc = new jsPDF();
-        doc.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight); // Add image with specified width and height
-        doc.autoPrint();
-        doc.output("dataurlnewwindow");
+    try {
+      const response = await api.post("/payment/violation", {
+        violationRecordId: violation!.id,
+        amountPaid: amount
       });
+      if (response.status !== 200) return;
+
+      onUpdateViolation(violation.id, {
+        status: "PAID",
+        violation: violation.violation,
+        payment: response.data
+      });
+
+      setPayment(response.data);
+      setShowReceipt(true);
+    } catch (err) {
+      const axiosError = err as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(
+        `${axiosError.status}: ${message || "Failed to process payment. Please try again later."}`
+      );
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -101,90 +97,55 @@ const ViolationPaymentModal = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center">
-            {showReceipt ? "Payment Receipt" : showConfirmation ? "Payment Added" : "Add Payment"}
+            {showReceipt ? "Payment Receipt" : showConfirmation ? "" : "Add Payment"}
           </DialogTitle>
         </DialogHeader>
 
         {showReceipt ? (
           <>
             <div ref={receiptRef}>
-              <Receipt violation={violation} paidAmount={paidAmount} referenceNo={referenceNo} />
+              <Receipt violation={{ ...violation, status: "PAID", payment: payment }} />
             </div>
-            <DialogFooter className="sm:justify-center gap-2 mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="w-full sm:w-auto"
-              >
-                Close
-              </Button>
-              <Button type="button" onClick={handlePrintReceipt} className="w-full sm:w-auto">
-                Print Receipt
-              </Button>
-            </DialogFooter>
           </>
-        ) : showConfirmation ? (
+        ) : isProcessing ? (
           <>
-            <div className="space-y-3 text-sm text-center">
-              <p>Violation ID: {violation.violation?.id}</p>
-              <p>{violation.violation?.category}</p>
-              <p>{new Date().toLocaleString()}</p>
+            <div className="flex flex-col space-y-3 justify-center items-center w-full h-[15rem]">
+              <strong className="text-md">Processing Payment</strong>
+              <Loader className="h-1/8 w-1/8 animate-spin duration-1000 text-theme" />
             </div>
-
-            <div className="text-sm space-y-3">
-              <div className="bg-green-200 text-green-800 p-2 rounded-md text-center">
-                <strong>Amount Added:</strong> PHP {paidAmount.toLocaleString()}
-              </div>
-              <div className="bg-red-200 text-red-800 p-2 rounded-md text-center">
-                <strong>Remaining Balance:</strong> PHP{" "}
-                {violation.violation?.penalty.toLocaleString()}
-              </div>
-            </div>
-
-            <DialogFooter className="sm:justify-center gap-2 mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="w-full sm:w-auto"
-              >
-                Close
-              </Button>
-              <Button
-                type="button"
-                onClick={() => setShowReceipt(true)}
-                className="w-full sm:w-auto"
-              >
-                Get Receipt
-              </Button>
-            </DialogFooter>
           </>
         ) : (
           <>
-            <div className="space-y-3 text-sm">
-              <p>Violation ID: {violation.violation?.id}</p>
-              <p>Violation Category: {violation.violation?.category}</p>
-              <p>Balance: PHP {violation.violation?.penalty.toLocaleString()}</p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="font-medium mb-4">Amount Paid</label>
+            <div className="text-sm space-y-4 mt-4">
+              <div className="flex justify-between">
+                <strong>Violation ID:</strong>
+                <strong>{violation?.id}</strong>
+              </div>
+              <div className="flex justify-between">
+                <strong>Date/Time:</strong>
+                <span>{format(new Date(violation.date), "MMMM dd, yyyy hh:mm a")}</span>
+              </div>
+              <div className="flex justify-between">
+                <strong>Amount Due:</strong>
+                <span>PHP {violation?.violation?.penalty.toFixed(2)}</span>
+              </div>
+              <div className="">
+                <strong>Cash Tendered:</strong>
+              </div>
             </div>
 
             <Input
               type="number"
               placeholder="PHP 0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => setAmount(Number(e.target.value))}
             />
 
             <DialogFooter className="sm:justify-center gap-2 mt-4">
               <Button
                 type="button"
-                onClick={handleSubmit}
-                disabled={!amount}
-                className="w-full sm:w-auto"
+                onClick={submitPayment}
+                disabled={!isPaymentEqualAmount}
+                className="w-full"
               >
                 Confirm Payment
               </Button>

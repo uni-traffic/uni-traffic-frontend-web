@@ -11,8 +11,10 @@ import {
 import SearchInput from "@/components/user-table/search-input";
 import UsersTable from "@/components/user-table/user-table";
 import type { Role, User } from "@/lib/types";
+import type { AxiosError } from "axios";
 import { Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const roles: { value: Role; label: string }[] = [
   { value: "SUPERADMIN", label: "SUPERADMIN" },
@@ -22,7 +24,6 @@ const roles: { value: Role; label: string }[] = [
   { value: "STUDENT", label: "STUDENT" },
   { value: "STAFF", label: "STAFF" },
   { value: "GUEST", label: "GUEST" }
-  // { value: "UNVERIFIED", label: "UNVERIFIED" },
 ];
 
 const UsersPage = () => {
@@ -44,7 +45,10 @@ const UsersPage = () => {
       setOriginUsers(response.data);
       setDisplayedUsers(response.data);
     } catch (error) {
-      console.log(error);
+      const axiosError = error as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(`${axiosError.status}: ${message || "Failed to fetch users"}`);
     }
   }, []);
 

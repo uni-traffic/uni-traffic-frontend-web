@@ -68,9 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.replace("/dashboard");
     } catch (err) {
       const error = err as AxiosError;
-      console.log(error.response?.data);
+      console.log("Sign In Error: ", error.response?.data);
 
-      setError("Internal Server Error: ");
+      setError(
+        error.status === 500
+          ? "Internal Server Error: "
+          : (error.response?.data as { message: string }).message
+      );
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +105,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       router.replace("/dashboard");
     } catch (err) {
-      console.log(err);
       const error = err as AxiosError;
       console.log(error.response?.data);
 

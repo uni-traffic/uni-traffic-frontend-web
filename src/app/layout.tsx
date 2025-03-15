@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MaintenanceWrapper } from "@/components/common/maintenance";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/auth-context";
 import type { ReactNode } from "react";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         <MaintenanceWrapper>
           <AuthProvider>{children}</AuthProvider>
         </MaintenanceWrapper>
+        <Toaster />
       </body>
     </html>
   );
