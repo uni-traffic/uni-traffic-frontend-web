@@ -1,11 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { IViolationRecordAuditLogDTO } from "@/lib/mockdata";
+import type { ViolationRecordAuditLog } from "@/lib/types";
 import { format } from "date-fns";
 
 interface UserDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  auditLog: IViolationRecordAuditLogDTO | null;
+  auditLog: ViolationRecordAuditLog | null;
 }
 
 const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) => {
@@ -13,7 +13,7 @@ const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md p-10">
+      <DialogContent className="sm:max-w-md p-10" aria-describedby={undefined}>
         <DialogHeader className="space-y-3">
           <div className="flex justify-center pt-4">
             <img src="/neu-logo.png" alt="University Logo" className="h-16 w-16 object-contain" />
@@ -51,7 +51,7 @@ const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps
             </div>
 
             <div className="flex justify-between flex-col space-y-2">
-              <span className="text-muted-foreground">Remarks:</span>
+              <span className="text-muted-foreground">Details:</span>
               <div>
                 <p>{auditLog.details}</p>
               </div>

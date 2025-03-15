@@ -62,4 +62,27 @@ export interface ViolationRecord {
   reporter: User | null;
   violation: Violation | null;
   vehicle: Vehicle | null;
+  payment: ViolationRecordPayment | null;
+}
+
+export interface ViolationRecordAuditLog {
+  id: string;
+  actorId: string;
+  auditLogType: string;
+  violationRecordId: string;
+  details: string;
+  createdAt: Date;
+  actor: User | null;
+  violationRecord: ViolationRecord | null;
+}
+
+export interface ViolationRecordPayment {
+  id: string;
+  cashierId: string;
+  violationRecordId: string;
+  amountPaid: number;
+  remarks: string | null;
+  timePaid: Date;
+  cashier: User | null;
+  violationRecord: ViolationRecord | null;
 }

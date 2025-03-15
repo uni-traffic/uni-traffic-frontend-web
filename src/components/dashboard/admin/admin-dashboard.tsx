@@ -1,34 +1,59 @@
+"use client";
+
+import api from "@/api/axios";
 import AuditLogDetailModal from "@/components/dashboard/admin/subComponents/audit-log-detail-modal";
 import AuditLogTable from "@/components/dashboard/admin/subComponents/audit-log-table";
 import FilterSelect from "@/components/dashboard/admin/subComponents/filter-select";
 import StatCard from "@/components/dashboard/admin/subComponents/stat-card";
 import SearchInput from "@/components/user-table/search-input";
-import { type IViolationRecordAuditLogDTO, auditLogData } from "@/lib/mockdata";
+import type { ViolationRecordAuditLog } from "@/lib/types";
+import { sortViolationRecordsByDate } from "@/lib/utils";
+import type { AxiosError } from "axios";
 import { Activity, AlertTriangle, DollarSign, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const filterOptions = [
-  { label: "All Type", value: "all" },
-  { label: "Created", value: "CREATED" },
-  { label: "Updated", value: "UPDATED" },
-  { label: "Deleted", value: "DELETED" }
+  { label: "All Type", value: "ALL" },
+  { label: "CREATE", value: "CREATE" },
+  { label: "UPDATE", value: "UPDATE" },
+  { label: "DELETE", value: "DELETE" }
 ];
 
 export const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterValue, setFilterValue] = useState("all");
-  const [originalUsers, setOriginalUsers] = useState<IViolationRecordAuditLogDTO[]>(auditLogData);
-  const [filteredUsers, setFilteredUsers] = useState<IViolationRecordAuditLogDTO[]>(auditLogData);
-  const [selectedUser, setSelectedUser] = useState<IViolationRecordAuditLogDTO | null>(null);
+  const [filterValue, setFilterValue] = useState("ALL");
+  const [auditLogs, setAuditLogs] = useState<ViolationRecordAuditLog[]>([]);
+  const [filteredAuditLogs, setFilteredAuditLogs] = useState<ViolationRecordAuditLog[]>([]);
+  const [selectedAuditLogs, setSelectedAuditLogs] = useState<ViolationRecordAuditLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchViolationRecordAuditLog = useCallback(async () => {
+    try {
+      const response = await api.get("/audit-log/violation-record/search", {
+        params: {
+          page: 1,
+          count: 20
+        }
+      });
+      if (response.status !== 200) return;
+
+      setAuditLogs(sortViolationRecordsByDate(response.data));
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(`${axiosError.status}: ${message || "Failed to fetch recent activities"}`);
+    }
+  }, []);
 
   const handleSearch = useCallback(() => {
     if (!searchTerm.trim()) {
-      setFilteredUsers(originalUsers);
+      setFilteredAuditLogs(auditLogs);
       return;
     }
 
-    const filtered = originalUsers.filter(
+    const filtered = auditLogs.filter(
       (auditLogData) =>
         `${auditLogData.actor?.firstName} ${auditLogData.actor?.lastName}`
           .toLowerCase()
@@ -36,11 +61,24 @@ export const AdminDashboard = () => {
         auditLogData.actor?.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    setFilteredUsers(filtered);
-  }, [searchTerm, originalUsers]);
+    setFilteredAuditLogs(filtered);
+  }, [searchTerm, auditLogs]);
 
-  const handleUserSelect = (auditLogData: IViolationRecordAuditLogDTO) => {
-    setSelectedUser(auditLogData);
+  const handleStatusFilter = (role: string) => {
+    setFilterValue(role);
+    if (role === "ALL") {
+      setFilteredAuditLogs(auditLogs);
+      return;
+    }
+
+    const filtered = auditLogs.filter(
+      (user) => user.auditLogType.toUpperCase() === role.toUpperCase()
+    );
+    setFilteredAuditLogs(filtered);
+  };
+
+  const handleAuditLogSelect = (auditLogData: ViolationRecordAuditLog) => {
+    setSelectedAuditLogs(auditLogData);
     setIsModalOpen(true);
   };
 
@@ -51,6 +89,11 @@ export const AdminDashboard = () => {
   useEffect(() => {
     handleSearch();
   }, [handleSearch]);
+
+  useEffect(() => {
+    console.log("1");
+    fetchViolationRecordAuditLog();
+  }, [fetchViolationRecordAuditLog]);
 
   return (
     <div className="flex h-full overflow-hidden bg-gray-50 p-8 animate-fade-in">
@@ -107,20 +150,20 @@ export const AdminDashboard = () => {
             </div>
             <FilterSelect
               value={filterValue}
-              onValueChange={setFilterValue}
+              onValueChange={handleStatusFilter}
               options={filterOptions}
               placeholder="All Type"
             />
           </div>
 
-          <AuditLogTable auditLogData={filteredUsers} onAuditLogSelect={handleUserSelect} />
+          <AuditLogTable auditLogData={filteredAuditLogs} onAuditLogSelect={handleAuditLogSelect} />
         </div>
       </div>
 
       <AuditLogDetailModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        auditLog={selectedUser}
+        auditLog={selectedAuditLogs}
       />
     </div>
   );
