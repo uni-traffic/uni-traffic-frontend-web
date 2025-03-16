@@ -94,7 +94,7 @@ const ViolationPaymentModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle className="text-center">
             {showReceipt ? "Payment Receipt" : showConfirmation ? "" : "Add Payment"}

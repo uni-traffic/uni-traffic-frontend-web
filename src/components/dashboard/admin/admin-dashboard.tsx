@@ -91,7 +91,6 @@ export const AdminDashboard = () => {
   }, [handleSearch]);
 
   useEffect(() => {
-    console.log("1");
     fetchViolationRecordAuditLog();
   }, [fetchViolationRecordAuditLog]);
 

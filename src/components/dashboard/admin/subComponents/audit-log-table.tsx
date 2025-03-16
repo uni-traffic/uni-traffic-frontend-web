@@ -38,7 +38,6 @@ const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
               <TableCell className="max-w-[15vw]">
                 <div className="flex items-center gap-3">
                   <UserAvatar
-                    src={auditLog.actor?.role}
                     name={`${auditLog.actor?.firstName} ${auditLog.actor?.lastName}`}
                     className="h-8 w-8"
                   />
