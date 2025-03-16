@@ -32,7 +32,7 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
 
   return (
     <>
-      <div className="relative rounded-md border overflow-hidden">
+      <div className="w-full relative rounded-md border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">

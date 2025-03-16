@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -129,7 +130,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setUser(null);
     } catch (err) {
-      console.log(err);
+      const axiosError = err as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(`${axiosError.status}: ${message || "Something went wrong logging out"}`);
     } finally {
       router.replace("/auth/login");
     }

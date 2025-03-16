@@ -18,7 +18,7 @@ interface UserTableProps {
 
 const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
   return (
-    <div className="overflow-hidden rounded-md border">
+    <div className="overflow-hidden rounded-md border flex-1">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
@@ -38,7 +38,6 @@ const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
               <TableCell className="max-w-[15vw]">
                 <div className="flex items-center gap-3">
                   <UserAvatar
-                    src={auditLog.actor?.role}
                     name={`${auditLog.actor?.firstName} ${auditLog.actor?.lastName}`}
                     className="h-8 w-8"
                   />

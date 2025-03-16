@@ -32,7 +32,7 @@ export default function RootLayout({
         <MaintenanceWrapper>
           <AuthProvider>{children}</AuthProvider>
         </MaintenanceWrapper>
-        <Toaster />
+        <Toaster richColors theme="light" />
       </body>
     </html>
   );
