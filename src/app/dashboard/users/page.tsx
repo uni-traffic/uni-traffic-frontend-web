@@ -12,8 +12,9 @@ import SearchInput from "@/components/user-table/search-input";
 import UsersTable from "@/components/user-table/user-table";
 import type { Role, User } from "@/lib/types";
 import type { AxiosError } from "axios";
-import { Filter } from "lucide-react";
+import { FileX2, Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { RingLoader } from "react-spinners";
 import { toast } from "sonner";
 
 const roles: { value: Role; label: string }[] = [
@@ -31,6 +32,7 @@ const UsersPage = () => {
   const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(true);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -49,6 +51,8 @@ const UsersPage = () => {
       const { message } = axiosError.response?.data as { message?: string };
 
       toast.error(`${axiosError.status}: ${message || "Failed to fetch users"}`);
+    } finally {
+      setFetching(false);
     }
   }, []);
 
@@ -96,7 +100,7 @@ const UsersPage = () => {
   }, [fetchUsers]);
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto animate-fade-in">
+    <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-1">User Management</h1>
         <p className="text-muted-foreground">Manage Users</p>
@@ -134,7 +138,21 @@ const UsersPage = () => {
         </div>
       </div>
 
-      <UsersTable users={displayedUsers} onUpdateUser={handleUpdateUser} />
+      <div className="flex flex-1">
+        {fetching ? (
+          <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+            <RingLoader />
+            <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+          </div>
+        ) : !fetching && originalUsers.length > 0 ? (
+          <UsersTable users={displayedUsers} onUpdateUser={handleUpdateUser} />
+        ) : (
+          <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+            <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+            <p className="font-semibold font-mono">NO USERS FOUND</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -12,8 +12,9 @@ import SearchInput from "@/components/violation-table/search-input";
 import ViolationsTable from "@/components/violation-table/violation-table";
 import type { ViolationRecord } from "@/lib/types";
 import type { AxiosError } from "axios";
-import { Filter } from "lucide-react";
+import { FileX2, Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { RingLoader } from "react-spinners";
 import { toast } from "sonner";
 
 const statusOptions = [
@@ -27,6 +28,7 @@ export const CashierDashboard = () => {
   const [displayedViolations, setDisplayedViolations] = useState<ViolationRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [fetching, setFetching] = useState(true);
 
   const fetchViolationRecords = useCallback(async () => {
     try {
@@ -40,6 +42,8 @@ export const CashierDashboard = () => {
       const { message } = axiosError.response?.data as { message?: string };
 
       toast.error(`${axiosError.status}: ${message || "User not found"}`);
+    } finally {
+      setFetching(false);
     }
   }, []);
 
@@ -89,7 +93,7 @@ export const CashierDashboard = () => {
   };
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto animate-fade-in">
+    <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-1">Violation Records</h1>
         <p className="text-muted-foreground">Violation Payment Review Panel</p>
@@ -127,7 +131,24 @@ export const CashierDashboard = () => {
         </div>
       </div>
 
-      <ViolationsTable violations={displayedViolations} onUpdateViolation={handleUpdateViolation} />
+      <div className="flex flex-1">
+        {fetching ? (
+          <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+            <RingLoader />
+            <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+          </div>
+        ) : !fetching && originalViolations.length > 0 ? (
+          <ViolationsTable
+            violations={displayedViolations}
+            onUpdateViolation={handleUpdateViolation}
+          />
+        ) : (
+          <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+            <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+            <p className="font-semibold font-mono">NO VIOLATION RECORDS FOUND</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

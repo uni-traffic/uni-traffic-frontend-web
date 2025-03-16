@@ -9,8 +9,9 @@ import SearchInput from "@/components/user-table/search-input";
 import type { ViolationRecordAuditLog } from "@/lib/types";
 import { sortViolationRecordsByDate } from "@/lib/utils";
 import type { AxiosError } from "axios";
-import { Activity, AlertTriangle, DollarSign, Users } from "lucide-react";
+import { Activity, AlertTriangle, DollarSign, FileX2, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { RingLoader } from "react-spinners";
 import { toast } from "sonner";
 
 const filterOptions = [
@@ -27,6 +28,7 @@ export const AdminDashboard = () => {
   const [filteredAuditLogs, setFilteredAuditLogs] = useState<ViolationRecordAuditLog[]>([]);
   const [selectedAuditLogs, setSelectedAuditLogs] = useState<ViolationRecordAuditLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   const fetchViolationRecordAuditLog = useCallback(async () => {
     try {
@@ -44,6 +46,8 @@ export const AdminDashboard = () => {
       const { message } = axiosError.response?.data as { message?: string };
 
       toast.error(`${axiosError.status}: ${message || "Failed to fetch recent activities"}`);
+    } finally {
+      setFetching(false);
     }
   }, []);
 
@@ -91,7 +95,6 @@ export const AdminDashboard = () => {
   }, [handleSearch]);
 
   useEffect(() => {
-    console.log("1");
     fetchViolationRecordAuditLog();
   }, [fetchViolationRecordAuditLog]);
 
@@ -131,12 +134,11 @@ export const AdminDashboard = () => {
         </div>
 
         <div
-          className="flex flex-col bg-white p-6 rounded-lg shadow-sm border animate-slide-up"
+          className="flex flex-1 flex-col p-6 rounded-lg shadow-sm border animate-slide-up bg-white"
           style={{ animationDelay: "0.1s" }}
         >
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-1">Recent Activities</h2>
-            {/* <p className="text-sm text-muted-foreground">Logs</p> */}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between">
@@ -156,7 +158,22 @@ export const AdminDashboard = () => {
             />
           </div>
 
-          <AuditLogTable auditLogData={filteredAuditLogs} onAuditLogSelect={handleAuditLogSelect} />
+          {fetching ? (
+            <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+              <RingLoader />
+              <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+            </div>
+          ) : !fetching && auditLogs.length > 0 ? (
+            <AuditLogTable
+              auditLogData={filteredAuditLogs}
+              onAuditLogSelect={handleAuditLogSelect}
+            />
+          ) : (
+            <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+              <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+              <p className="font-bold font-mono">NO RECENT ACTIVITIES FOUND</p>
+            </div>
+          )}
         </div>
       </div>
 

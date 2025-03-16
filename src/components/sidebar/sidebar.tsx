@@ -1,6 +1,9 @@
 "use client";
 
+import { useAuth } from "@/context/auth-context";
 import { ChevronsLeft, ChevronsRight, Home, Settings2, Users } from "lucide-react";
+import Link from "next/link";
+import { Separator } from "../ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -14,9 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "../ui/sidebar";
-import { Separator } from "../ui/separator";
 import { SidebarUserProfile } from "./user-profile";
-import { useAuth } from "@/context/auth-context";
 
 const items = [
   {
@@ -85,10 +86,10 @@ export const AppSidebar = () => {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <a href={item.url}>
+                      <Link href={item.url} prefetch={false}>
                         <item.icon />
                         <span className="text-base font-medium">{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

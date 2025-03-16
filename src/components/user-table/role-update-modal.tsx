@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
 import type { Role, User } from "@/lib/types";
+import type { AxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import UserAvatar from "./user-avatar";
 
 interface RoleUpdateModalProps {
@@ -54,9 +56,14 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
         role: selectedRole?.toUpperCase()
       });
 
-      console.log(response);
+      toast.success(
+        `Successfully updated ${response.data.firstName}'s role to ${response.data.role}.`
+      );
     } catch (err) {
-      console.log(err);
+      const axiosError = err as AxiosError;
+      const { message } = axiosError.response?.data as { message?: string };
+
+      toast.error(`${axiosError.status}: ${message || "Failed to update user Role."}`);
     } finally {
       setIsLoading(false);
       onClose();
@@ -78,17 +85,13 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle className="text-center">Update User Role</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col items-center space-y-4 my-4">
-          <UserAvatar
-            src={user.role}
-            name={`${user.firstName} ${user.lastName}`}
-            className="h-16 w-16"
-          />
+          <UserAvatar name={`${user.firstName} ${user.lastName}`} className="h-16 w-16" />
           <div className="text-center">
             <p className="font-medium text-foreground">{`${user.firstName} ${user.lastName}`}</p>
             <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -129,7 +132,7 @@ const RoleUpdateModal = ({ user, isOpen, onClose, onUpdateRole }: RoleUpdateModa
             className="w-full sm:w-auto"
           >
             {isLoading ? (
-              <div className="flex">
+              <div className="flex space-x-4">
                 <Loader2 className="animate-spin" />
                 Updating Role
               </div>
