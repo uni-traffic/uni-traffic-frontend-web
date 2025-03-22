@@ -31,7 +31,7 @@ const generateVehicle = (): IVehicleDTO => ({
   owner: generateUser()
 });
 
-const generateViolationRecord = (): IViolationRecordDTO => {
+export const generateViolationRecord = (): IViolationRecordDTO => {
   const user = generateUser();
   const reporter = generateUser();
   const violation = generateViolation();
@@ -43,7 +43,7 @@ const generateViolationRecord = (): IViolationRecordDTO => {
     reportedById: reporter.id,
     violationId: violation.id,
     vehicleId: vehicle.id,
-    status: faker.helpers.arrayElement(["Pending", "Resolved", "Dismissed"]),
+    status: faker.helpers.arrayElement(["UNPAID", "PAID"]),
     remarks: faker.lorem.sentence(),
     date: faker.date.past().toISOString(),
     user,
