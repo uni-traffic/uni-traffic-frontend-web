@@ -31,7 +31,7 @@ const generateVehicle = (): IVehicleDTO => ({
   owner: generateUser()
 });
 
-export const generateViolationRecord = (): IViolationRecordDTO => {
+const generateViolationRecord = (): IViolationRecordDTO => {
   const user = generateUser();
   const reporter = generateUser();
   const violation = generateViolation();
@@ -43,7 +43,7 @@ export const generateViolationRecord = (): IViolationRecordDTO => {
     reportedById: reporter.id,
     violationId: violation.id,
     vehicleId: vehicle.id,
-    status: faker.helpers.arrayElement(["UNPAID", "PAID"]),
+    status: faker.helpers.arrayElement(["Pending", "Resolved", "Dismissed"]),
     remarks: faker.lorem.sentence(),
     date: faker.date.past().toISOString(),
     user,
@@ -70,6 +70,55 @@ const generateViolationRecordAuditLog = (): IViolationRecordAuditLogDTO => {
 
 export const auditLogData = Array.from({ length: 5 }, generateViolationRecordAuditLog);
 
+const generateSchoolMember = (): ISchoolMemberDTO => ({
+  schoolId: faker.string.uuid(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  type: faker.helpers.arrayElement(["STUDENT", "STAFF", "SECURITY"]),
+  schoolCredential: faker.string.alphanumeric(8),
+});
+
+const generateDriver = (): IDriverDTO => ({
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  licenseId: faker.string.alphanumeric(12),
+  licenseImage: faker.image.urlLoremFlickr({ category: "people" }),
+});
+
+const generateVehicleInfo = (): IVehicleInfoDTO => ({
+  make: faker.vehicle.manufacturer(),
+  series: faker.vehicle.model(),
+  type: faker.helpers.arrayElement(["Sedan", "SUV", "Truck", "Motorcycle"]),
+  model: faker.vehicle.model(),
+  licensePlate: faker.vehicle.vrm(),
+  certificateOfRegistration: faker.image.urlLoremFlickr({ category: "transportation" }),
+  officialReceipt: faker.image.urlLoremFlickr({ category: "documents" }),
+  frontImage: faker.image.urlLoremFlickr({ category: "transportation" }),
+  sideImage: faker.image.urlLoremFlickr({ category: "transportation" }),
+  backImage: faker.image.urlLoremFlickr({ category: "transportation" }),
+});
+
+const generateVehicleApplication = (): IVehicleApplicationDTO => {
+  const applicant = generateUser();
+  return {
+    id: faker.string.alphanumeric(12),
+    stickerNumber: faker.datatype.boolean() ? faker.string.alphanumeric(10) : null,
+    remarks: faker.lorem.sentence(),
+    createdAt: faker.date.past(),
+    updatedAt: faker.date.recent(),
+    schoolMember: generateSchoolMember(),
+    driver: generateDriver(),
+    vehicle: generateVehicleInfo(),
+    status: faker.helpers.arrayElement(["FOR CLEARANCE", "APPROVED", "REJECTED"]),
+    applicantId: applicant.id,
+    applicant,
+    payment: null,
+  };
+};
+
+export const vehicleApplicationData = Array.from({ length: 10 }, generateVehicleApplication);
+
+
 export interface IUserDTO {
   id: string;
   username: string;
@@ -88,10 +137,10 @@ export interface IViolationRecordDTO {
   status: string;
   remarks: string;
   date: string;
-  user: IUserDTO;
-  reporter: IUserDTO;
-  violation: IViolationDTO;
-  vehicle: IVehicleDTO;
+  user: IUserDTO ;
+  reporter: IUserDTO ;
+  violation: IViolationDTO ;
+  vehicle: IVehicleDTO ;
 }
 
 export interface IViolationDTO {
@@ -111,9 +160,9 @@ export interface IVehicleDTO {
   color: string;
   type: string;
   images: string[];
-  isActive: boolean;
+  isActive: boolean; 
   stickerNumber: string;
-  owner: IUserDTO;
+  owner: IUserDTO ;
 }
 
 export interface IViolationRecordAuditLogDTO {
@@ -124,4 +173,57 @@ export interface IViolationRecordAuditLogDTO {
   createdAt: Date;
   actor: IUserDTO | null;
   violationRecord: IViolationRecordDTO | null;
+}
+
+export interface IVehicleApplicationDTO {
+  id: string;
+  stickerNumber: string | null;
+  remarks: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  schoolMember: ISchoolMemberDTO;
+  driver: IDriverDTO;
+  vehicle: IVehicleInfoDTO;
+  status: string;
+  applicantId: string;
+  applicant?: IUserDTO;
+  payment?:  null;
+}
+
+export interface ISchoolMemberDTO {
+  schoolId: string;
+  firstName: string;
+  lastName: string;
+  type: string;
+  schoolCredential: string;
+}
+
+export interface IDriverDTO {
+  firstName: string;
+  lastName: string;
+  licenseId: string;
+  licenseImage: string;
+}
+
+export interface IVehicleInfoDTO {
+  make: string;
+  series: string;
+  type: string;
+  model: string;
+  licensePlate: string;
+  certificateOfRegistration: string;
+  officialReceipt: string;
+  frontImage: string;
+  sideImage: string;
+  backImage: string;
+}
+
+export interface IVehicleApplicationPaymentDTO {
+  id: string;
+  cashierId: string;
+  vehicleApplicationId: string;
+  amountPaid: number;
+  remarks: string | null;
+  timePaid: Date;
+  cashier: IUserDTO | null;
 }
