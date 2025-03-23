@@ -1,6 +1,6 @@
 "use client";
-
 import api from "@/api/axios";
+import ApplicationsTable from "@/components/applications-table/applications-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,14 +9,11 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import SearchInput from "@/components/violation-table/search-input";
-import ApplicationsTable from "@/components/applications-table/applications-table";
 import type { VehicleApplication } from "@/lib/types";
-import { vehicleApplicationData } from "@/lib/mockdata";
 import type { AxiosError } from "axios";
 import { FileX2, Filter } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
-import { toast } from "sonner";
 
 const statusOptions = [
   { value: "ALL", label: "ALL" },
@@ -32,37 +29,31 @@ export const SecurityDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [fetching, setFetching] = useState(true);
 
-  const fetchVehicleApplications = useCallback(() => {
-    setOriginalApplications(vehicleApplicationData);
-    setDisplayedApplications(vehicleApplicationData);
-    setFetching(false);
-  }, []);
-  
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) {
       setDisplayedApplications(originalApplications);
       return;
     }
-  
-    const filtered = originalApplications.filter((application) =>
-      application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const filtered = originalApplications.filter(
+      (application) =>
+        application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  
+
     setDisplayedApplications(filtered);
   }, [searchQuery, originalApplications]);
-  
-  
+
   const handleStatusFilter = (filterValue: string) => {
     setStatusFilter(filterValue);
-  
+
     if (!filterValue || filterValue === "ALL") {
       setDisplayedApplications(originalApplications);
       return;
     }
-  
+
     const filtered = originalApplications.filter(
       (application) => application.status.toUpperCase() === filterValue.toUpperCase()
     );
@@ -72,24 +63,44 @@ export const SecurityDashboard = () => {
   useEffect(() => {
     handleSearch();
   }, [handleSearch]);
- 
-  useEffect(() => {
-    fetchVehicleApplications();
-  }, [fetchVehicleApplications]);
 
   const handleUpdateApplication = (id: string, updates: Partial<VehicleApplication>) => {
     setOriginalApplications((prev) =>
-      prev.map((app) =>
-        app.id === id ? { ...app, ...updates } : app
-      )
+      prev.map((app) => (app.id === id ? { ...app, ...updates } : app))
     );
-  
+
     setDisplayedApplications((prev) =>
-      prev.map((app) =>
-        app.id === id ? { ...app, ...updates } : app
-      )
+      prev.map((app) => (app.id === id ? { ...app, ...updates } : app))
     );
   };
+
+  const fetchVehicleStickerApplication = useCallback(async () => {
+    setFetching(true);
+    try {
+      const response = await api.get("/vehicle-application/search", {
+        params: {
+          count: 25,
+          page: 1
+        }
+      });
+      if (response.status !== 200 || !response.data) {
+        return;
+      }
+
+      setOriginalApplications(response.data as VehicleApplication[]);
+      setDisplayedApplications(response.data as VehicleApplication[]);
+    } catch (err) {
+      const error = err as AxiosError;
+
+      console.log(error);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchVehicleStickerApplication();
+  }, [fetchVehicleStickerApplication]);
 
   return (
     <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
@@ -137,8 +148,8 @@ export const SecurityDashboard = () => {
             <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
           </div>
         ) : !fetching && originalApplications.length > 0 ? (
-          <ApplicationsTable 
-            applications={displayedApplications} 
+          <ApplicationsTable
+            applications={displayedApplications}
             onUpdateApplication={handleUpdateApplication}
           />
         ) : (

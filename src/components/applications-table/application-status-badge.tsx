@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) => {
   const getStatusStyles = (): string => {
     switch (status) {
-      case "FOR CLEARANCE":
+      case "PENDING_FOR_SECURITY_APPROVAL":
         return "bg-yellow-400";
       case "REJECTED":
         return "bg-red-600";
@@ -27,7 +27,33 @@ export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) 
         className
       )}
     >
-      {status}
+      {getFormattedStatus(status)}
     </span>
   );
+};
+
+const getFormattedStatus = (rawStatus: string): string => {
+  let status: string;
+
+  switch (rawStatus) {
+    case "APPROVED":
+      status = "Approved";
+      break;
+    case "PENDING_FOR_STICKER":
+      status = "Waiting for Sticker";
+      break;
+    case "PENDING_FOR_PAYMENT":
+      status = "Waiting for Payment";
+      break;
+    case "PENDING_FOR_SECURITY_APPROVAL":
+      status = "For Security Approval";
+      break;
+    case "DENIED":
+      status = "Denied";
+      break;
+    default:
+      status = "Unknown";
+  }
+
+  return status;
 };

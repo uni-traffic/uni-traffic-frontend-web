@@ -87,45 +87,43 @@ export interface ViolationRecordPayment {
   violationRecord: ViolationRecord | null;
 }
 
-export interface SchoolMember {
-  schoolId: string;
-  firstName: string;
-  lastName: string;
-  type: string;
-  schoolCredential: string;
-}
-
-export interface Driver {
-  firstName: string;
-  lastName: string;
-  licenseId: string;
-  licenseImage: string;
-}
-
-export interface VehicleInfo {
-  make: string;
-  series: string;
-  type: string;
-  model: string;
-  licensePlate: string;
-  certificateOfRegistration: string;
-  officialReceipt: string;
-  frontImage: string;
-  sideImage: string;
-  backImage: string;
-}
-
 export interface VehicleApplication {
   id: string;
   stickerNumber: string | null;
   remarks: string | null;
   createdAt: Date;
   updatedAt: Date;
-  schoolMember: SchoolMember;
-  driver: Driver;
-  vehicle: VehicleInfo;
+  schoolMember: {
+    schoolId: string;
+    firstName: string;
+    lastName: string;
+    type: string;
+    schoolCredential: string;
+  };
+  driver: {
+    firstName: string;
+    lastName: string;
+    licenseId: string;
+    licenseImage: string;
+  };
+  vehicle: {
+    make: string;
+    series: string;
+    type: string;
+    model: string;
+    licensePlate: string;
+    certificateOfRegistration: string;
+    officialReceipt: string;
+    frontImage: string;
+    sideImage: string;
+    backImage: string;
+  };
   status: string;
   applicantId: string;
   applicant?: User;
-  payment?:  null;
+}
+
+export interface ImageLink {
+  url: string;
+  alt: string;
 }

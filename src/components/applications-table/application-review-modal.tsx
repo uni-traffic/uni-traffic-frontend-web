@@ -1,162 +1,304 @@
-import React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import type { ImageLink, VehicleApplication } from "@/lib/types";
 import { X } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import VehicleImageCarousel from "./vehicle-image-carousel";
 
-interface VehicleApplicationReviewModalProps {
+interface ApplicationModalProps {
+  application: VehicleApplication | null;
   isOpen: boolean;
-  application: any | null;
   onClose: () => void;
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onApprove: (id: string, remarks: string) => void;
+  onReject: (id: string, remarks: string) => void;
 }
 
-const VehicleApplicationReviewModal = ({
-  isOpen,
+const ApplicationModal = ({
   application,
+  isOpen,
   onClose,
   onApprove,
-  onReject,
-}: VehicleApplicationReviewModalProps) => {
-  if (!isOpen || !application) return null;
+  onReject
+}: ApplicationModalProps) => {
+  const [remarks, setRemarks] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!application) return null;
 
   const handleApprove = () => {
-    onApprove(application.id);
-    toast.success("Application approved successfully");
-    onClose();
-  };
-  
-  const handleReject = () => {
-    onReject(application.id);
-    toast.error("Application rejected successfully");
-    onClose();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onApprove(application.id, remarks);
+      setIsSubmitting(false);
+      toast.success("Application has been approved");
+    }, 800);
   };
 
+  const handleReject = () => {
+    if (!remarks.trim()) {
+      toast.error("Please provide remarks for rejection");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      onReject(application.id, remarks);
+      setIsSubmitting(false);
+      toast.success("Application has been rejected");
+    }, 800);
+  };
+
+  const vehicleImages: ImageLink[] = [
+    { url: application.vehicle.frontImage, alt: "Front View" },
+    { url: application.vehicle.sideImage, alt: "Side View" },
+    { url: application.vehicle.backImage, alt: "Rear View" }
+  ];
+
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)]  flex justify-center items-center z-50">
-      <div className="bg-white flex-row w-[80rem] h-[40rem] p-8 rounded-lg shadow relative ">
-        <div className="flex w-[100%] h-[10%] ">
-          <div className="w-[33%] "></div>
-          <div className="w-[33%] font-bold text-2xl text-center ">Vehicle Application Review</div>
-          <div className="w-[33%] flex justify-end">
-            <button><X className="w-6 h-6 mb-7 text-black hover:text-gray-700" onClick={onClose}/></button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 rounded-lg">
+        <DialogHeader className="p-6 pb-2 sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl font-semibold">Vehicle Application Review</DialogTitle>
+            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-8 w-8">
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
-        <div className="flex w-[100%] h-[90%]">
-          <div className="flex flex-col px-4 gap-3 w-[33%] ">
-            <div className=" flex flex-col h-[50%] w-[100%] border border-black rounded-sm">
-              <div className="flex w-[100%] h-[20%] justify-center items-center font-bold text-sm">Staff/Student Form</div>
-              <div className="flex flex-col mb-4 w-[100%] h-[20%]">
-                <label className="text-sm ml-2 text-gray-500">School ID</label>
-                <input type="text" value={application.schoolMember.schoolId || "-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-              </div>
-              <div className="mb-4 flex w-[100%] h-[20%]">
-                <div className="flex flex-col w-[100%] h-[20%] ">
-                  <label className="text-sm ml-2 text-gray-500">First Name</label>
-                  <input type="text" value={application.schoolMember.firstName || "-"} className="px-2 py-1 border rounded-md text-md font-semibold w-[11rem]" readOnly />
-                </div><div className="flex flex-col w-[100%] h-[20%] ">
-                  <label className="text-sm ml-2 text-gray-500">Last Name</label>
-                  <input type="text" value={application.schoolMember.lastName || "-"} className="px-2 py-1 border rounded-md text-md font-semibold w-[12rem]" readOnly />
+          <DialogDescription className="text-sm text-muted-foreground">
+            Review the application details before approving or rejecting
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="p-6">
+          <Tabs defaultValue="staff" className="w-full">
+            <TabsList className="w-full grid grid-cols-3 mb-6">
+              <TabsTrigger value="staff">Staff/Student Form</TabsTrigger>
+              <TabsTrigger value="driver">Driver Form</TabsTrigger>
+              <TabsTrigger value="vehicle">Vehicle Form</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="staff" className="space-y-4 animate-fade-in">
+              <div className="grid md:grid-cols-2 gap-6 p-6 border rounded-lg subtle-shadow">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground">School ID</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.schoolMember.schoolId}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-muted-foreground">First Name</label>
+                      <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                        {application.schoolMember.firstName}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Last Name</label>
+                      <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                        {application.schoolMember.lastName}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground">Type</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.schoolMember.type}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-medium mb-2 block">School Credentials</label>
+                  <div className="mt-2 border rounded-md overflow-hidden">
+                    <img
+                      src={application.schoolMember.schoolCredential}
+                      alt="School Credentials"
+                      className="w-full h-[200px] object-contain cursor-pointer"
+                      onClick={() =>
+                        window.open(application.schoolMember.schoolCredential, "_blank")
+                      }
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Click on image to view in full size
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col mb-4 w-[100%] h-[20%]">
-                <label className="text-sm ml-2 text-gray-500">Type</label>
-                <input type="text" value={application.schoolMember.type || "-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
+            </TabsContent>
+
+            <TabsContent value="driver" className="space-y-4 animate-fade-in">
+              <div className="grid md:grid-cols-2 gap-6 p-6 border rounded-lg subtle-shadow">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-muted-foreground">First Name</label>
+                      <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                        {application.driver.firstName}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Last Name</label>
+                      <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                        {application.driver.lastName}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground">License ID</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.driver.licenseId}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-medium mb-2 block">License Image</label>
+                  <div className="mt-2 border rounded-md overflow-hidden">
+                    <img
+                      src={application.driver.licenseImage}
+                      alt="Driver's License"
+                      className="w-full h-[200px] object-contain cursor-pointer"
+                      onClick={() => window.open(application.driver.licenseImage, "_blank")}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Click on image to view in full size
+                  </p>
+                </div>
               </div>
-              <div className="flex w-[100%] h-[20%] mb-4 justify-between items-center">
-                <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold hover:bg-gray-800">Preview School Credentials</button>
-                <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
+            </TabsContent>
+
+            <TabsContent value="vehicle" className="space-y-4 animate-fade-in">
+              <div className="p-6 border rounded-lg subtle-shadow">
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Make</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.vehicle.make}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground">Series</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.vehicle.series}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Type</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.vehicle.type}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground">Model</label>
+                    <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                      {application.vehicle.model}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="text-xs text-muted-foreground">License Plate</label>
+                  <div className="text-sm font-medium p-2 border rounded bg-muted/30">
+                    {application.vehicle.licensePlate}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Certificate of Registration</label>
+                    <div className="border rounded-md overflow-hidden">
+                      <img
+                        src={application.vehicle.certificateOfRegistration}
+                        alt="Certificate of Registration"
+                        className="w-full h-[180px] object-contain cursor-pointer"
+                        onClick={() =>
+                          window.open(application.vehicle.certificateOfRegistration, "_blank")
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Official Receipt</label>
+                    <div className="border rounded-md overflow-hidden">
+                      <img
+                        src={application.vehicle.officialReceipt}
+                        alt="Official Receipt"
+                        className="w-full h-[180px] object-contain cursor-pointer"
+                        onClick={() => window.open(application.vehicle.officialReceipt, "_blank")}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center col-span-2">
+                    Click on images to view in full size
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <label className="text-sm font-medium mb-3 block">Vehicle Images</label>
+                  {vehicleImages && vehicleImages.length > 0 && (
+                    <VehicleImageCarousel images={vehicleImages} />
+                  )}
+                </div>
               </div>
-            </div>
-            <div className=" flex flex-col h-[50%] w-[100%] border border-black rounded-sm">
-              <div className="flex w-[100%] h-[20%] justify-center items-center font-bold text-sm">Driver Form</div>
-              <div className="flex flex-col mb-4 w-[100%] h-[20%]">
-                <label className="text-sm ml-2 text-gray-500">First Name</label>
-                <input type="text" value={application.driver.firstName || "-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-              </div>
-              <div className="flex flex-col mb-4 w-[100%] h-[20%]">
-                <label className="text-sm ml-2 text-gray-500">Last Name</label>
-                <input type="text" value={application.driver.lastName || "-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-              </div>
-              <div className="flex flex-col mb-4 w-[100%] h-[20%]">
-                <label className="text-sm ml-2 text-gray-500">License ID</label>
-                <input type="text" value={application.driver.licenseId || "-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-              </div>
-              <div className="flex w-[100%] h-[20%] mb-4 justify-between items-center">
-                <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold hover:bg-gray-800">Preview License Image</button>
-                <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-              </div>
-            </div>
-          </div>
-          <div className="w-[33%] h-[102.5%] border border-black rounded-sm">
-            <div className="flex w-[100%] h-[8%] justify-center items-center font-bold text-sm">Vehicle Form</div>
-            <div className="flex flex-col mb-2 w-[100%] h-[9.09090909091%]">
-              <label className="text-sm ml-2 text-gray-500">Make</label>
-              <input type="text" value={application.vehicle.make ||"-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-            </div>
-            <div className="flex flex-col mb-2 w-[100%] h-[9.09090909091%]">
-              <label className="text-sm ml-2 text-gray-500">Series</label>
-              <input type="text" value={application.vehicle.series ||"-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-            </div>
-            <div className="flex flex-col mb-2 w-[100%] h-[9.09090909091%]">
-              <label className="text-sm ml-2 text-gray-500">Type</label>
-              <input type="text" value={application.vehicle.type ||"-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-            </div>
-            <div className="flex flex-col mb-2 w-[100%] h-[9.09090909091%]">
-              <label className="text-sm ml-2 text-gray-500">Model</label>
-              <input type="text" value={application.vehicle.model ||"-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-            </div>
-            <div className="flex flex-col mb-2 w-[100%] h-[9.09090909091%]">
-              <label className="text-sm ml-2 text-gray-500">License Plate</label>
-              <input type="text" value={application.vehicle.licensePlate ||"-"} className="px-2 py-1 border rounded-md text-md font-semibold" readOnly />
-            </div>
-            <div className="flex w-[100%] h-[3%] mb-6 mt-5 justify-between items-center">
-              <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold w-[65%] hover:bg-gray-800">Preview Certificate of Registration</button>
-              <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-            </div>
-            <div className="flex w-[100%] h-[3%] mb-6 justify-between items-center">
-              <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold w-[65%] hover:bg-gray-800">Preview Original Receipt</button>
-              <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-            </div>
-            <div className="flex w-[100%] h-[3%] mb-6 justify-between items-center">
-              <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold w-[65%] hover:bg-gray-800">Preview Vehicle Front Image</button>
-              <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-            </div>
-            <div className="flex w-[100%] h-[3%] mb-6 justify-between items-center">
-              <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold w-[65%] hover:bg-gray-800">Preview Vehicle Side Image</button>
-              <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-            </div>
-            <div className="flex w-[100%] h-[3%] mb-2 justify-between items-center">
-              <button className="bg-black text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold w-[65%] hover:bg-gray-800">Preview Vehicle Back Image</button>
-              <a href="https://imglink123.test.com" className="text-blue-500 underline text-sm mr-2">Image Link</a>
-            </div>
-          </div>
-          <div className="flex flex-col px-4 gap-3 w-[33%] h-[102.5%]">
-            <div className=" flex flex-col h-[50%] w-[100%] ">
-            <img
-              src="/driverLicense.jpg"
-              alt="Driver License"
-              className="object-cover h-full w-full"
+            </TabsContent>
+          </Tabs>
+
+          <div className="mt-6">
+            <label className="text-sm font-medium mb-2 block">Remarks:</label>
+            <Textarea
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              placeholder="Add remarks here..."
+              className="min-h-[100px]"
             />
-            </div>
-            <div className=" flex flex-col h-[50%] w-[100%] border border-black rounded-sm gap-2">
-              <div className="flex flex-col w-[95%] h-[90%] mt-3 ml-2 font-bold text-sm">Remarks:
-                <textarea
-                  placeholder="Add remarks here..."
-                  className="w-full border p-2 rounded-md h-32"
-                ></textarea>
-              </div>
-              <div className="flex w-[100%] h-[20%] mb-4 justify-between items-center">
-                <button onClick={handleReject} className="bg-red-500 text-white px-4 py-1 rounded-md text-sm ml-2 font-semibold hover:bg-red-400">Reject Application</button>
-                <button 
-                  onClick={handleApprove} 
-                  className="bg-green-500 text-white px-4 py-1 rounded-md text-sm mr-2 font-semibold hover:bg-green-400">Approve Application</button>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {application.status === "PENDING_FOR_SECURITY_APPROVAL"
+                ? "Remarks are required for rejection"
+                : `Previous remarks: ${application.remarks || "None"}`}
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+
+        <DialogFooter className="sticky bottom-0 p-4 border-t bg-background/95 backdrop-blur-sm">
+          {application.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
+            <div className="flex w-full justify-end gap-4">
+              <Button variant="destructive" onClick={handleReject} disabled={true} className="px-6">
+                {isSubmitting ? "Processing..." : "Reject Application"}
+              </Button>
+              <Button onClick={handleApprove} disabled={true} className="px-6">
+                {isSubmitting ? "Processing..." : "Approve Application"}
+              </Button>
+            </div>
+          ) : (
+            <Button onClick={onClose} className="ml-auto">
+              Close
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default VehicleApplicationReviewModal;
+export default ApplicationModal;

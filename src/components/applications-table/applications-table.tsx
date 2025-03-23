@@ -1,5 +1,6 @@
 "use client";
-import  VehicleApplicationReviewModal from "@/components/applications-table/application-review-modal";
+
+import ApplicationModal from "@/components/applications-table/application-review-modal";
 import { ApplicationStatusBadge } from "@/components/applications-table/application-status-badge";
 import type { VehicleApplication } from "@/lib/types";
 import { format } from "date-fns";
@@ -13,7 +14,6 @@ interface ApplicationsTableProps {
 
 const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTableProps) => {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
-  const [isApplicationReceiptModalOpen, setIsApplicationReceiptModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<VehicleApplication | null>(null);
 
   const handleApplicationClick = (application: VehicleApplication) => {
@@ -35,8 +35,8 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
               <th className="py-3 px-4 text-left font-medium">Applicant</th>
               <th className="py-3 px-4 text-left font-medium w-[8rem]">License Plate</th>
               <th className="py-3 px-4 text-left font-medium">Date Created</th>
-              <th className="py-3 px-4 text-center font-medium w-[10rem]">Status</th>
-              <th className="py-3 px-4 text-left font-medium w-[12rem]"/>
+              <th className="py-3 px-4 text-left font-medium">Status</th>
+              <th className="py-3 px-4 text-left font-medium w-[12rem]" />
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -56,9 +56,11 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
                   <td className="py-3.5 px-4 text-xs">
                     {format(new Date(record.createdAt), "MMMM dd, yyyy hh:mm a")}
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-center"><ApplicationStatusBadge status={record.status} /></td>
+                  <td className="py-3.5 px-4 font-bold">
+                    <ApplicationStatusBadge status={record.status} />
+                  </td>
                   <td className="py-3.5 px-4 text-center">
-                    {record.status === "FOR CLEARANCE" ? (
+                    {record.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
                       <Button
                         variant="outline"
                         className="font-semibold"
@@ -66,15 +68,11 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
                       >
                         REVIEW
                       </Button>
-                    ) 
-                    :  (
+                    ) : (
                       <span className="flex flex-col gap-0.5 text-center text-xs ">
                         <p className="font-bold"> {record.status} ON</p>
                         <p className="">{format(new Date(), "MMMM dd, yyyy hh:mm a")}</p>
-                        <button
-                          type="button"
-                          className="underline text-blue-500 font-bold"
-                        >
+                        <button type="button" className="underline text-blue-500 font-bold">
                           VIEW REMARKS
                         </button>
                       </span>
@@ -86,7 +84,7 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
           </tbody>
         </table>
       </div>
-      <VehicleApplicationReviewModal
+      <ApplicationModal
         isOpen={isApplicationModalOpen}
         application={selectedApplication}
         onClose={() => setIsApplicationModalOpen(false)}
