@@ -10,7 +10,11 @@ export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) 
     switch (status) {
       case "PENDING_FOR_SECURITY_APPROVAL":
         return "bg-yellow-400";
-      case "REJECTED":
+      case "PENDING_FOR_STICKER":
+        return "bg-yellow-400";
+      case "PENDING_FOR_PAYMENT":
+        return "bg-yellow-400";
+      case "DENIED":
         return "bg-red-600";
       case "APPROVED":
         return "bg-green-500";
@@ -22,7 +26,7 @@ export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) 
   return (
     <span
       className={cn(
-        "px-2 py-0.5 rounded-full text-xs text-white font-medium uppercase",
+        "px-2 py-0.5 rounded-full text-xs text-white font-sm uppercase",
         getStatusStyles(),
         className
       )}

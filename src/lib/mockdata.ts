@@ -75,14 +75,14 @@ const generateSchoolMember = (): ISchoolMemberDTO => ({
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   type: faker.helpers.arrayElement(["STUDENT", "STAFF", "SECURITY"]),
-  schoolCredential: faker.string.alphanumeric(8),
+  schoolCredential: faker.string.alphanumeric(8)
 });
 
 const generateDriver = (): IDriverDTO => ({
   firstName: faker.person.firstName(),
   lastName: faker.person.lastName(),
   licenseId: faker.string.alphanumeric(12),
-  licenseImage: faker.image.urlLoremFlickr({ category: "people" }),
+  licenseImage: faker.image.urlLoremFlickr({ category: "people" })
 });
 
 const generateVehicleInfo = (): IVehicleInfoDTO => ({
@@ -95,7 +95,7 @@ const generateVehicleInfo = (): IVehicleInfoDTO => ({
   officialReceipt: faker.image.urlLoremFlickr({ category: "documents" }),
   frontImage: faker.image.urlLoremFlickr({ category: "transportation" }),
   sideImage: faker.image.urlLoremFlickr({ category: "transportation" }),
-  backImage: faker.image.urlLoremFlickr({ category: "transportation" }),
+  backImage: faker.image.urlLoremFlickr({ category: "transportation" })
 });
 
 const generateVehicleApplication = (): IVehicleApplicationDTO => {
@@ -109,15 +109,37 @@ const generateVehicleApplication = (): IVehicleApplicationDTO => {
     schoolMember: generateSchoolMember(),
     driver: generateDriver(),
     vehicle: generateVehicleInfo(),
-    status: faker.helpers.arrayElement(["FOR CLEARANCE", "APPROVED", "REJECTED"]),
+    status: faker.helpers.arrayElement([
+      "PENDING_FOR_STICKER",
+      "PENDING_FOR_PAYMENT",
+      "PENDING_FOR_SECURITY_APPROVAL",
+      "APPROVED",
+      "DENIED"
+    ]),
     applicantId: applicant.id,
     applicant,
-    payment: null,
+    payment: faker.datatype.boolean() ? generateMockVehicleApplicationPayment() : null
+  };
+};
+
+const generateMockVehicleApplicationPayment = (): IVehicleApplicationPaymentDTO => {
+  const totalAmount = faker.number.float({ min: 100, max: 1000 });
+  const amountPaid = faker.number.float({ min: 50, max: totalAmount });
+  const change = amountPaid > totalAmount ? amountPaid - totalAmount : 0;
+  const amountDue = 0;
+
+  return {
+    id: faker.string.uuid(),
+    //vehicleApplicationId: faker.string.uuid(),
+    amountPaid,
+    change,
+    amountDue,
+    timePaid: faker.date.past(),
+    cashier: faker.datatype.boolean() ? generateUser() : null
   };
 };
 
 export const vehicleApplicationData = Array.from({ length: 10 }, generateVehicleApplication);
-
 
 export interface IUserDTO {
   id: string;
@@ -137,10 +159,10 @@ export interface IViolationRecordDTO {
   status: string;
   remarks: string;
   date: string;
-  user: IUserDTO ;
-  reporter: IUserDTO ;
-  violation: IViolationDTO ;
-  vehicle: IVehicleDTO ;
+  user: IUserDTO;
+  reporter: IUserDTO;
+  violation: IViolationDTO;
+  vehicle: IVehicleDTO;
 }
 
 export interface IViolationDTO {
@@ -160,9 +182,9 @@ export interface IVehicleDTO {
   color: string;
   type: string;
   images: string[];
-  isActive: boolean; 
+  isActive: boolean;
   stickerNumber: string;
-  owner: IUserDTO ;
+  owner: IUserDTO;
 }
 
 export interface IViolationRecordAuditLogDTO {
@@ -187,7 +209,7 @@ export interface IVehicleApplicationDTO {
   status: string;
   applicantId: string;
   applicant?: IUserDTO;
-  payment?:  null;
+  payment?: IVehicleApplicationPaymentDTO | null;
 }
 
 export interface ISchoolMemberDTO {
@@ -220,10 +242,10 @@ export interface IVehicleInfoDTO {
 
 export interface IVehicleApplicationPaymentDTO {
   id: string;
-  cashierId: string;
-  vehicleApplicationId: string;
+  // vehicleApplicationId: string;
   amountPaid: number;
-  remarks: string | null;
+  change: number;
+  amountDue: number;
   timePaid: Date;
   cashier: IUserDTO | null;
 }
