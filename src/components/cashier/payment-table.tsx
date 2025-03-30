@@ -37,7 +37,7 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
               <th className="py-3 px-4 text-left font-medium">Applicant</th>
               <th className="py-3 px-4 text-left font-medium w-[8rem]">License Plate</th>
               <th className="py-3 px-4 text-left font-medium">Date Created</th>
-              <th className="py-3 px-4 text-left font-medium">Status</th>
+              <th className="py-3 px-4 text-center font-medium">Status</th>
               <th className="py-3 px-4 text-left font-medium w-[12rem]" />
             </tr>
           </thead>
@@ -57,11 +57,11 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
                   <td className="py-3.5 px-4 text-xs">
                     {format(new Date(record.createdAt), "MMMM dd, yyyy hh:mm a")}
                   </td>
-                  <td className="py-3.5 px-4 font-bold">
+                  <td className="py-3.5 px-4 font-bold text-center">
                     <ApplicationStatusBadge status={record.status} />
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    {record.status !== "DENIED" && (
+                    {record.status === "PENDING_FOR_PAYMENT" ? (
                       <Button
                         variant="outline"
                         className="font-semibold"
@@ -69,7 +69,7 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
                       >
                         ADD PAYMENT
                       </Button>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               );

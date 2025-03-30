@@ -136,12 +136,7 @@ const ApplicationPaymentModal = ({
             />
 
             <DialogFooter className="sm:justify-center gap-2 mt-4">
-              <Button
-                type="button"
-                onClick={submitPayment}
-                disabled={!isPaymentEqualAmount}
-                className="w-full"
-              >
+              <Button type="button" onClick={submitPayment} disabled={true} className="w-full">
                 Confirm Payment
               </Button>
             </DialogFooter>

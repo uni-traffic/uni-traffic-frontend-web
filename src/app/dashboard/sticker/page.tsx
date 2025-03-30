@@ -9,10 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import type { IVehicleApplicationDTO } from "@/lib/mockdata";
-import { vehicleApplicationData } from "@/lib/mockdata";
-import { Filter } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useVehicleApplications } from "@/hooks/vehicleApplication/useVehicleApplications";
+import type { VehicleApplication } from "@/lib/types";
+import { FileX2, Filter } from "lucide-react";
+import { useState } from "react";
+import { RingLoader } from "react-spinners";
 
 const statusOptions = [
   { value: "ALL", label: "ALL" },
@@ -24,62 +25,34 @@ const statusOptions = [
 ];
 
 const ApplicationPage = () => {
-  const [originalApplications, setOriginalApplications] =
-    useState<IVehicleApplicationDTO[]>(vehicleApplicationData);
-  const [displayedApplications, setDisplayedApplications] =
-    useState<IVehicleApplicationDTO[]>(vehicleApplicationData);
+  const { data: applications = [], isLoading } = useVehicleApplications({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [fetching, setFetching] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }>({
+    value: "ALL",
+    label: "ALL"
+  });
 
-  const handleSearch = useCallback(() => {
-    if (!searchQuery.trim()) {
-      setDisplayedApplications(originalApplications);
-      return;
-    }
+  const filteredApplications = (applications as VehicleApplication[]).filter((application) => {
+    const matchesSearch =
+      !searchQuery.trim() ||
+      application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.vehicle.licensePlate.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const filtered = originalApplications.filter(
-      (application) =>
-        application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const matchesStatus =
+      statusFilter.value === "ALL" ||
+      application.status.toUpperCase() === statusFilter.value.toUpperCase();
 
-    setDisplayedApplications(filtered);
-  }, [searchQuery, originalApplications]);
-
-  const handleStatusFilter = (filterValue: string) => {
-    setStatusFilter(filterValue);
-
-    if (!filterValue || filterValue === "ALL") {
-      setDisplayedApplications(originalApplications);
-      return;
-    }
-
-    const filtered = originalApplications.filter(
-      (application) => application.status.toUpperCase() === filterValue.toUpperCase()
-    );
-    setDisplayedApplications(filtered);
-  };
-
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
-
-  const handleUpdateApplication = (id: string, updates: Partial<IVehicleApplicationDTO>) => {
-    setDisplayedApplications((prev) =>
-      prev.map((application) =>
-        application.id === id ? { ...application, ...updates } : application
-      )
-    );
-  };
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your vehicle management dashboard</p>
+        <h1 className="text-3xl font-bold text-foreground mb-1">Vehicle Sticker Application</h1>
+        {/*<p className="text-muted-foreground">Welcome to your vehicle management dashboard</p>*/}
       </div>
 
       <div className="mb-6 flex justify-between items-center gap-4 flex-col sm:flex-row">
@@ -97,15 +70,12 @@ const ApplicationPage = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1">
                 <Filter className="h-4 w-4" />
-                {statusFilter !== "ALL" ? `Status: ${statusFilter}` : "All"}
+                {statusFilter.value !== "ALL" ? `Status: ${statusFilter.label}` : "All"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {statusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => handleStatusFilter(option.value)}
-                >
+                <DropdownMenuItem key={option.value} onClick={() => setStatusFilter(option)}>
                   {option.label}
                 </DropdownMenuItem>
               ))}
@@ -115,10 +85,22 @@ const ApplicationPage = () => {
       </div>
 
       <div className="flex flex-1">
-        <PaymentTable
-          applications={displayedApplications}
-          onUpdateApplication={handleUpdateApplication}
-        />
+        {isLoading ? (
+          <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+            <RingLoader />
+            <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+          </div>
+        ) : filteredApplications.length > 0 ? (
+          <PaymentTable
+            applications={filteredApplications}
+            onUpdateApplication={() => console.log("Update application")}
+          />
+        ) : (
+          <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+            <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+            <p className="font-semibold font-mono">NO VEHICLE APPLICATIONS FOUND</p>
+          </div>
+        )}
       </div>
     </div>
   );
