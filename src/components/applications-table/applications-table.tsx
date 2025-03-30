@@ -9,20 +9,15 @@ import { Button } from "../ui/button";
 
 interface ApplicationsTableProps {
   applications: VehicleApplication[];
-  onUpdateApplication: (id: string, updates: Partial<VehicleApplication>) => void;
 }
 
-const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTableProps) => {
+const ApplicationsTable = ({ applications }: ApplicationsTableProps) => {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<VehicleApplication | null>(null);
 
   const handleApplicationClick = (application: VehicleApplication) => {
     setSelectedApplication(application);
     setIsApplicationModalOpen(true);
-  };
-
-  const handleUpdateApplication = (id: string, updates: Partial<VehicleApplication>) => {
-    onUpdateApplication(id, updates);
   };
 
   return (
@@ -35,7 +30,7 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
               <th className="py-3 px-4 text-left font-medium">Applicant</th>
               <th className="py-3 px-4 text-left font-medium w-[8rem]">License Plate</th>
               <th className="py-3 px-4 text-left font-medium">Date Created</th>
-              <th className="py-3 px-4 text-left font-medium">Status</th>
+              <th className="py-3 px-4 text-center font-medium">Status</th>
               <th className="py-3 px-4 text-left font-medium w-[12rem]" />
             </tr>
           </thead>
@@ -56,7 +51,7 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
                   <td className="py-3.5 px-4 text-xs">
                     {format(new Date(record.createdAt), "MMMM dd, yyyy hh:mm a")}
                   </td>
-                  <td className="py-3.5 px-4 font-bold">
+                  <td className="py-3.5 px-4 font-bold text-center">
                     <ApplicationStatusBadge status={record.status} />
                   </td>
                   <td className="py-3.5 px-4 text-center">
@@ -70,10 +65,17 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
                       </Button>
                     ) : (
                       <span className="flex flex-col gap-0.5 text-center text-xs ">
-                        <p className="font-bold"> {record.status} ON</p>
-                        <p className="">{format(new Date(), "MMMM dd, yyyy hh:mm a")}</p>
-                        <button type="button" className="underline text-blue-500 font-bold">
-                          VIEW REMARKS
+                        <p className="font-bold">
+                          {" "}
+                          {record.status === "REJECTED" ? "REJECTED" : "APPROVED"} ON
+                        </p>
+                        <p className="">{format(record.updatedAt, "MMMM dd, yyyy hh:mm a")}</p>
+                        <button
+                          type="button"
+                          className="underline text-blue-500 font-bold"
+                          onClick={() => handleApplicationClick(record)}
+                        >
+                          VIEW
                         </button>
                       </span>
                     )}
@@ -87,9 +89,10 @@ const ApplicationsTable = ({ applications, onUpdateApplication }: ApplicationsTa
       <ApplicationModal
         isOpen={isApplicationModalOpen}
         application={selectedApplication}
-        onClose={() => setIsApplicationModalOpen(false)}
-        onApprove={(id) => handleUpdateApplication(id, { status: "APPROVED" })}
-        onReject={(id) => handleUpdateApplication(id, { status: "REJECTED" })}
+        onClose={() => {
+          setIsApplicationModalOpen(false);
+          setSelectedApplication(null);
+        }}
       />
     </>
   );

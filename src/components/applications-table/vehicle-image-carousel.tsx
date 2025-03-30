@@ -41,7 +41,7 @@ const VehicleImageCarousel = ({ images }: VehicleImageCarouselProps) => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-between mt-4">
         <CarouselPrevious className="static translate-y-0 h-10 w-10 border rounded-md" />
         <CarouselNext className="static translate-y-0 h-10 w-10 border rounded-md" />
       </div>

@@ -12,6 +12,15 @@ export type Role =
   | "UNVERIFIED"
   | "SUPERADMIN";
 
+export type VehicleApplicationStatus =
+  | "APPROVED"
+  | "PENDING_FOR_STICKER"
+  | "PENDING_FOR_PAYMENT"
+  | "PENDING_FOR_SECURITY_APPROVAL"
+  | "REJECTED";
+
+export type VehicleApplicationUserType = "STUDENT" | "STAFF";
+
 export interface User {
   id: string;
   username: string;

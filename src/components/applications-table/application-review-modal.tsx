@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useUpdateVehicleApplicationStatus } from "@/hooks/vehicleApplication/useUpdateVehicleApplicationStatus";
 import type { ImageLink, VehicleApplication } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -19,43 +21,57 @@ interface ApplicationModalProps {
   application: VehicleApplication | null;
   isOpen: boolean;
   onClose: () => void;
-  onApprove: (id: string, remarks: string) => void;
-  onReject: (id: string, remarks: string) => void;
 }
 
-const ApplicationModal = ({
-  application,
-  isOpen,
-  onClose,
-  onApprove,
-  onReject
-}: ApplicationModalProps) => {
+const ApplicationModal = ({ application, isOpen, onClose }: ApplicationModalProps) => {
+  const queryClient = useQueryClient();
   const [remarks, setRemarks] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { mutate: updateVehicleApplicationStatus, isPending } = useUpdateVehicleApplicationStatus();
 
   if (!application) return null;
 
   const handleApprove = () => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      onApprove(application.id, remarks);
-      setIsSubmitting(false);
-      toast.success("Application has been approved");
-    }, 800);
+    updateVehicleApplicationStatus(
+      {
+        vehicleApplicationId: application.id,
+        newStatus: "PENDING_FOR_PAYMENT",
+        remarks: remarks
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["vehicleApplications"] });
+          toast.success("Application has been approved");
+          onClose();
+        },
+        onError: () => toast.error("Error submitting approving application")
+      }
+    );
   };
 
   const handleReject = () => {
-    if (!remarks.trim()) {
-      toast.error("Please provide remarks for rejection");
+    if (remarks.trim().length === 0) {
+      toast.error("You must define remarks when rejecting an application.");
       return;
     }
 
-    setIsSubmitting(true);
-    setTimeout(() => {
-      onReject(application.id, remarks);
-      setIsSubmitting(false);
-      toast.success("Application has been rejected");
-    }, 800);
+    console.log(remarks);
+
+    updateVehicleApplicationStatus(
+      {
+        vehicleApplicationId: application.id,
+        newStatus: "REJECTED",
+        remarks: remarks
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["vehicleApplications"] });
+          toast.success("Application has been approved");
+          onClose();
+        },
+        onError: () => toast.error("Error submitting approving application")
+      }
+    );
   };
 
   const vehicleImages: ImageLink[] = [
@@ -264,30 +280,45 @@ const ApplicationModal = ({
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6">
-            <label className="text-sm font-medium mb-2 block">Remarks:</label>
-            <Textarea
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              placeholder="Add remarks here..."
-              className="min-h-[100px]"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {application.status === "PENDING_FOR_SECURITY_APPROVAL"
-                ? "Remarks are required for rejection"
-                : `Previous remarks: ${application.remarks || "None"}`}
-            </p>
-          </div>
+          {application.remarks && application.status === "REJECTED" ? (
+            <div className="mt-6">
+              <label className="text-sm font-medium mb-2 block">Remarks:</label>
+              <div className="text-sm p-2 border rounded bg-muted/30 min-h-[100px]">
+                {application.remarks || ""}
+              </div>
+            </div>
+          ) : application.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
+            <div className="mt-6">
+              <label className="text-sm font-medium mb-2 block">Remarks:</label>
+              <Textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Add remarks here..."
+                className="min-h-[100px]"
+                disabled={application.status !== "PENDING_FOR_SECURITY_APPROVAL"}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {application.status === "PENDING_FOR_SECURITY_APPROVAL"
+                  ? "Remarks are required for rejection"
+                  : `Previous remarks: ${application.remarks || "None"}`}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter className="sticky bottom-0 p-4 border-t bg-background/95 backdrop-blur-sm">
           {application.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
             <div className="flex w-full justify-end gap-4">
-              <Button variant="destructive" onClick={handleReject} disabled={true} className="px-6">
-                {isSubmitting ? "Processing..." : "Reject Application"}
+              <Button
+                variant="destructive"
+                onClick={handleReject}
+                disabled={isPending}
+                className="px-6"
+              >
+                {isPending ? "Processing..." : "Reject Application"}
               </Button>
-              <Button onClick={handleApprove} disabled={true} className="px-6">
-                {isSubmitting ? "Processing..." : "Approve Application"}
+              <Button onClick={handleApprove} disabled={isPending} className="px-6">
+                {isPending ? "Processing..." : "Approve Application"}
               </Button>
             </div>
           ) : (
