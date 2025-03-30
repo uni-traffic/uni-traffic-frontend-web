@@ -1,5 +1,4 @@
 "use client";
-import api from "@/api/axios";
 import ApplicationsTable from "@/components/applications-table/applications-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,98 +8,44 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import SearchInput from "@/components/violation-table/search-input";
+import { useVehicleApplications } from "@/hooks/vehicleApplication/useVehicleApplications";
 import type { VehicleApplication } from "@/lib/types";
-import type { AxiosError } from "axios";
 import { FileX2, Filter } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { RingLoader } from "react-spinners";
 
 const statusOptions = [
-  { value: "ALL", label: "ALL" },
+  { value: "ALL", label: "All" },
   { value: "APPROVED", label: "Approved" },
-  { value: "REJECTED", label: "Rejected" },
-  { value: "FOR CLEARANCE", label: "For Clearance" }
+  { value: "PENDING_FOR_STICKER", label: "Pending for Sticker" },
+  { value: "PENDING_FOR_PAYMENT", label: "Pending for Payment" },
+  { value: "PENDING_FOR_SECURITY_APPROVAL", label: "Pending for Security Approval" },
+  { value: "REJECTED", label: "Rejected" }
 ];
 
 export const SecurityDashboard = () => {
-  const [originalApplications, setOriginalApplications] = useState<VehicleApplication[]>([]);
-  const [displayedApplications, setDisplayedApplications] = useState<VehicleApplication[]>([]);
+  const { data: applications = [], isLoading } = useVehicleApplications({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [fetching, setFetching] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }>({
+    value: "ALL",
+    label: "ALL"
+  });
 
-  const handleSearch = useCallback(() => {
-    if (!searchQuery.trim()) {
-      setDisplayedApplications(originalApplications);
-      return;
-    }
+  const filteredApplications = (applications as VehicleApplication[]).filter((application) => {
+    const matchesSearch =
+      !searchQuery.trim() ||
+      application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      application.vehicle.licensePlate.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const filtered = originalApplications.filter(
-      (application) =>
-        application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const matchesStatus =
+      statusFilter.value === "ALL" ||
+      application.status.toUpperCase() === statusFilter.value.toUpperCase();
 
-    setDisplayedApplications(filtered);
-  }, [searchQuery, originalApplications]);
-
-  const handleStatusFilter = (filterValue: string) => {
-    setStatusFilter(filterValue);
-
-    if (!filterValue || filterValue === "ALL") {
-      setDisplayedApplications(originalApplications);
-      return;
-    }
-
-    const filtered = originalApplications.filter(
-      (application) => application.status.toUpperCase() === filterValue.toUpperCase()
-    );
-    setDisplayedApplications(filtered);
-  };
-
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
-
-  const handleUpdateApplication = (id: string, updates: Partial<VehicleApplication>) => {
-    setOriginalApplications((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, ...updates } : app))
-    );
-
-    setDisplayedApplications((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, ...updates } : app))
-    );
-  };
-
-  const fetchVehicleStickerApplication = useCallback(async () => {
-    setFetching(true);
-    try {
-      const response = await api.get("/vehicle-application/search", {
-        params: {
-          count: 25,
-          page: 1
-        }
-      });
-      if (response.status !== 200 || !response.data) {
-        return;
-      }
-
-      setOriginalApplications(response.data as VehicleApplication[]);
-      setDisplayedApplications(response.data as VehicleApplication[]);
-    } catch (err) {
-      const error = err as AxiosError;
-
-      console.log(error);
-    } finally {
-      setFetching(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchVehicleStickerApplication();
-  }, [fetchVehicleStickerApplication]);
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
@@ -124,15 +69,12 @@ export const SecurityDashboard = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1">
                 <Filter className="h-4 w-4" />
-                {statusFilter !== "ALL" ? `Status: ${statusFilter}` : "All"}
+                {statusFilter.value !== "ALL" ? `Status: ${statusFilter.label}` : "All"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {statusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => handleStatusFilter(option.value)}
-                >
+                <DropdownMenuItem key={option.value} onClick={() => setStatusFilter(option)}>
                   {option.label}
                 </DropdownMenuItem>
               ))}
@@ -142,16 +84,13 @@ export const SecurityDashboard = () => {
       </div>
 
       <div className="flex flex-1">
-        {fetching ? (
+        {isLoading ? (
           <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
             <RingLoader />
             <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
           </div>
-        ) : !fetching && originalApplications.length > 0 ? (
-          <ApplicationsTable
-            applications={displayedApplications}
-            onUpdateApplication={handleUpdateApplication}
-          />
+        ) : filteredApplications.length > 0 ? (
+          <ApplicationsTable applications={filteredApplications} />
         ) : (
           <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
             <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
