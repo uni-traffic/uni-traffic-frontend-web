@@ -23,10 +23,27 @@ export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) 
     }
   };
 
+  const getFormattedStatus = (rawStatus: string): string => {
+    switch (rawStatus) {
+      case "APPROVED":
+        return "Approved";
+      case "PENDING_FOR_STICKER":
+        return "Pending for Sticker";
+      case "PENDING_FOR_PAYMENT":
+        return "Pending for Payment";
+      case "PENDING_FOR_SECURITY_APPROVAL":
+        return "For Security Approval";
+      case "REJECTED":
+        return "Rejected";
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
     <span
       className={cn(
-        "px-2 py-0.5 rounded-full text-xs text-white font-medium uppercase",
+        "px-2 py-0.5 rounded-full text-xs text-white font-sm uppercase",
         getStatusStyles(),
         className
       )}
@@ -34,30 +51,4 @@ export const ApplicationStatusBadge = ({ status, className }: StatusBadgeProps) 
       {getFormattedStatus(status)}
     </span>
   );
-};
-
-const getFormattedStatus = (rawStatus: string): string => {
-  let status: string;
-
-  switch (rawStatus) {
-    case "APPROVED":
-      status = "Approved";
-      break;
-    case "PENDING_FOR_STICKER":
-      status = "Pending for Sticker";
-      break;
-    case "PENDING_FOR_PAYMENT":
-      status = "Pending for Payment";
-      break;
-    case "PENDING_FOR_SECURITY_APPROVAL":
-      status = "For Security Approval";
-      break;
-    case "REJECTED":
-      status = "Rejected";
-      break;
-    default:
-      status = "Unknown";
-  }
-
-  return status;
 };
