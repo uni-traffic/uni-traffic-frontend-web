@@ -4,14 +4,6 @@ import type { ViolationRecord } from "@/lib/types";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "../ui/pagination";
 import ViolationPaymentModal from "./violation-payment-modal";
 
 interface ViolationsTableProps {
@@ -20,15 +12,9 @@ interface ViolationsTableProps {
 }
 
 const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps) => {
-  const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [isViolationReceiptModalOpen, setIsViolationReceiptModalOpen] = useState(false);
   const [selectedViolation, setSelectedViolation] = useState<ViolationRecord | null>(null);
-
-  const totalPages = Math.ceil(violations.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const paginatedViolations = violations.slice(startIndex, startIndex + rowsPerPage);
 
   const handleViolationClick = (violation: ViolationRecord) => {
     setSelectedViolation(violation);
@@ -42,12 +28,6 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
   const handleViewReceipt = (violation: ViolationRecord) => {
     setIsViolationReceiptModalOpen(true);
     setSelectedViolation(violation);
-  };
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
   };
 
   return (
@@ -65,7 +45,7 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
             </tr>
           </thead>
           <tbody className="divide-y">
-            {paginatedViolations.map((record) => {
+            {violations.map((record) => {
               const user = record.user;
 
               return (
@@ -112,27 +92,6 @@ const ViolationsTable = ({ violations, onUpdateViolation }: ViolationsTableProps
             })}
           </tbody>
         </table>
-        <Pagination className="m-2">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-            </PaginationItem>
-            {Array.from({ length: totalPages }).map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <PaginationItem key={index}>
-                <PaginationLink
-                  isActive={currentPage === index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
       <ViolationPaymentModal
         isOpen={isViolationModalOpen}

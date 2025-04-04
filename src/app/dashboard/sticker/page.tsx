@@ -9,6 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
 import { useVehicleApplications } from "@/hooks/vehicleApplication/useVehicleApplications";
 import type { VehicleApplication } from "@/lib/types";
 import { FileX2, Filter } from "lucide-react";
@@ -92,10 +99,22 @@ const ApplicationPage = () => {
               <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
             </div>
           ) : filteredApplications.length > 0 ? (
-            <PaymentTable
-              applications={filteredApplications}
-              onUpdateApplication={() => console.log("Update application")}
-            />
+            <div className="flex flex-col w-full justify-between">
+              <PaymentTable
+                applications={filteredApplications}
+                onUpdateApplication={() => console.log("Update application")}
+              />
+              <Pagination className="w-full">
+                <PaginationContent className="flex justify-between w-full">
+                  <PaginationItem className="cursor-pointer">
+                    <PaginationPrevious />
+                  </PaginationItem>
+                  <PaginationItem className="cursor-pointer">
+                    <PaginationNext />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           ) : (
             <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
               <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />

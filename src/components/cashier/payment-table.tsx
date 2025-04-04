@@ -5,14 +5,6 @@ import type { IVehicleApplicationDTO } from "@/lib/mockdata";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "../ui/pagination";
 import ApplicationPaymentModal from "./application-payment-modal";
 
 interface ApplicationsTableProps {
@@ -21,15 +13,10 @@ interface ApplicationsTableProps {
 }
 
 const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTableProps) => {
-  const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<IVehicleApplicationDTO | null>(
     null
   );
-  const totalPages = Math.ceil(applications.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const paginatedApplications = applications.slice(startIndex, startIndex + rowsPerPage);
 
   const handleApplicationClick = (application: IVehicleApplicationDTO) => {
     setSelectedApplication(application);
@@ -38,12 +25,6 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
 
   const handlePaymentApplication = (id: string, updates: Partial<IVehicleApplicationDTO>) => {
     onUpdateApplication(id, updates);
-  };
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
   };
 
   return (
@@ -61,8 +42,9 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
             </tr>
           </thead>
           <tbody className="divide-y">
-            {paginatedApplications.map((record) => {
+            {applications.map((record) => {
               const user = record.applicant;
+
               return (
                 <tr key={record.id} className="bg-card hover:bg-muted/50 transition-colors">
                   <td className="py-3.5 px-4 font-bold">{record.id}</td>
@@ -95,27 +77,6 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
             })}
           </tbody>
         </table>
-        <Pagination className="m-2">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-            </PaginationItem>
-            {Array.from({ length: totalPages }).map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <PaginationItem key={index}>
-                <PaginationLink
-                  isActive={currentPage === index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
       <ApplicationPaymentModal
         application={selectedApplication}

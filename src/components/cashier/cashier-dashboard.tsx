@@ -8,6 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
 import SearchInput from "@/components/violation-table/search-input";
 import ViolationsTable from "@/components/violation-table/violation-table";
 import type { ViolationRecord } from "@/lib/types";
@@ -96,7 +103,7 @@ export const CashierDashboard = () => {
 
   return (
     <div className="flex flex-1 flex-col h-full bg-gray-50 p-8 animate-fade-in">
-      <div className="flex flex-1 flex-col p-6 m-8 rounded-lg shadow-sm border w-full mx-auto animate-fade-in">
+      <div className="flex flex-1 flex-col p-6 w-full rounded-lg shadow-sm border mx-auto animate-fade-in">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-1">Violation Records</h1>
           <p className="text-muted-foreground">Violation Payment Review Panel</p>
@@ -134,22 +141,36 @@ export const CashierDashboard = () => {
           </div>
         </div>
 
-        {fetching ? (
-          <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
-            <RingLoader />
-            <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
-          </div>
-        ) : !fetching && originalViolations.length > 0 ? (
-          <ViolationsTable
-            violations={displayedViolations}
-            onUpdateViolation={handleUpdateViolation}
-          />
-        ) : (
-          <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
-            <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
-            <p className="font-semibold font-mono">NO VIOLATION RECORDS FOUND</p>
-          </div>
-        )}
+        <div className="flex flex-1">
+          {fetching ? (
+            <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+              <RingLoader />
+              <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+            </div>
+          ) : !fetching && originalViolations.length > 0 ? (
+            <div className="flex flex-col w-full justify-between">
+              <ViolationsTable
+                violations={displayedViolations}
+                onUpdateViolation={handleUpdateViolation}
+              />
+              <Pagination className="w-full">
+                <PaginationContent className="flex justify-between w-full">
+                  <PaginationItem className="cursor-pointer">
+                    <PaginationPrevious />
+                  </PaginationItem>
+                  <PaginationItem className="cursor-pointer">
+                    <PaginationNext />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          ) : (
+            <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+              <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+              <p className="font-semibold font-mono">NO VIOLATION RECORDS FOUND</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
