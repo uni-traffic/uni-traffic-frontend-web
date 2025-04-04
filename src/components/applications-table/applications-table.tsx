@@ -6,18 +6,37 @@ import type { VehicleApplication } from "@/lib/types";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "../ui/pagination";
 
 interface ApplicationsTableProps {
   applications: VehicleApplication[];
 }
 
 const ApplicationsTable = ({ applications }: ApplicationsTableProps) => {
+  const rowsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<VehicleApplication | null>(null);
+  const totalPages = Math.ceil(applications.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedApplication = applications.slice(startIndex, startIndex + rowsPerPage);
 
   const handleApplicationClick = (application: VehicleApplication) => {
     setSelectedApplication(application);
     setIsApplicationModalOpen(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
@@ -35,7 +54,7 @@ const ApplicationsTable = ({ applications }: ApplicationsTableProps) => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {applications.map((record) => {
+            {paginatedApplication.map((record) => {
               const user = record.applicant;
 
               return (
@@ -85,6 +104,27 @@ const ApplicationsTable = ({ applications }: ApplicationsTableProps) => {
             })}
           </tbody>
         </table>
+        <Pagination className="m-2">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+            </PaginationItem>
+            {Array.from({ length: totalPages }).map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <PaginationItem key={index}>
+                <PaginationLink
+                  isActive={currentPage === index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
       <ApplicationModal
         isOpen={isApplicationModalOpen}

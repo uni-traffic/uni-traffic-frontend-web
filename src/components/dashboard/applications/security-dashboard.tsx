@@ -48,42 +48,42 @@ export const SecurityDashboard = () => {
   });
 
   return (
-    <div className="flex flex-col p-6 max-w-[1200px] h-full mx-auto animate-fade-in">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your vehicle management dashboard</p>
-      </div>
-
-      <div className="mb-6 flex justify-between items-center gap-4 flex-col sm:flex-row">
-        <div className="w-full sm:max-w-sm">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSearch={() => console.log("Search")}
-            placeholder="Search User or Reference No..."
-          />
+    <div className="flex flex-1 flex-col h-full bg-gray-50 p-8 animate-fade-in">
+      <div className="flex flex-1 flex-col p-6 w-full rounded-lg shadow-sm border mx-auto animate-fade-in">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome to your vehicle management dashboard</p>
         </div>
 
-        <div className="flex items-center gap-2 self-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1">
-                <Filter className="h-4 w-4" />
-                {statusFilter.value !== "ALL" ? `Status: ${statusFilter.label}` : "All"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {statusOptions.map((option) => (
-                <DropdownMenuItem key={option.value} onClick={() => setStatusFilter(option)}>
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+        <div className="mb-6 flex justify-between items-center gap-4 flex-col sm:flex-row">
+          <div className="w-full sm:max-w-sm">
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSearch={() => console.log("Search")}
+              placeholder="Search User or Reference No..."
+            />
+          </div>
 
-      <div className="flex flex-1">
+          <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  {statusFilter.value !== "ALL" ? `Status: ${statusFilter.label}` : "All"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {statusOptions.map((option) => (
+                  <DropdownMenuItem key={option.value} onClick={() => setStatusFilter(option)}>
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
             <RingLoader />
