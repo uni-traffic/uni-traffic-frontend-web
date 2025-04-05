@@ -1,30 +1,31 @@
 "use client";
 
 import { ApplicationStatusBadge } from "@/components/applications-table/application-status-badge";
-import type { IVehicleApplicationDTO } from "@/lib/mockdata";
+import { StickerApplicationReceiptModal } from "@/components/cashier/application-receipt-modal";
+import type { StickerApplicationPayment, VehicleApplication } from "@/lib/types";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import ApplicationPaymentModal from "./application-payment-modal";
 
 interface ApplicationsTableProps {
-  applications: IVehicleApplicationDTO[];
-  onUpdateApplication: (id: string, updates: Partial<IVehicleApplicationDTO>) => void;
+  applications: VehicleApplication[];
 }
 
-const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTableProps) => {
+const PaymentTable = ({ applications }: ApplicationsTableProps) => {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState<IVehicleApplicationDTO | null>(
-    null
-  );
+  const [isStickerApplicationReceiptOpen, setIsStickerApplicationReceiptOpen] = useState(false);
+  const [receipt, setReceipt] = useState<StickerApplicationPayment | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<VehicleApplication | null>(null);
 
-  const handleApplicationClick = (application: IVehicleApplicationDTO) => {
+  const handleApplicationClick = (application: VehicleApplication) => {
     setSelectedApplication(application);
     setIsApplicationModalOpen(true);
   };
 
-  const handlePaymentApplication = (id: string, updates: Partial<IVehicleApplicationDTO>) => {
-    onUpdateApplication(id, updates);
+  const handleViewReceipt = (stickerApplicationPayment: StickerApplicationPayment | null) => {
+    setIsStickerApplicationReceiptOpen(true);
+    setReceipt(stickerApplicationPayment);
   };
 
   return (
@@ -70,6 +71,14 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
                       >
                         ADD PAYMENT
                       </Button>
+                    ) : record.status === "PENDING_FOR_STICKER" ? (
+                      <Button
+                        variant="outline"
+                        className="font-semibold"
+                        onClick={() => handleViewReceipt(record.payment)}
+                      >
+                        VIEW RECEIPT
+                      </Button>
                     ) : null}
                   </td>
                 </tr>
@@ -82,7 +91,12 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
         application={selectedApplication}
         isOpen={isApplicationModalOpen}
         onClose={() => setIsApplicationModalOpen(false)}
-        onUpdateApplication={handlePaymentApplication}
+        handleViewReceipt={handleViewReceipt}
+      />
+      <StickerApplicationReceiptModal
+        stickerApplicationPayment={receipt}
+        isOpen={isStickerApplicationReceiptOpen}
+        onClose={() => setIsStickerApplicationReceiptOpen(false)}
       />
     </>
   );
