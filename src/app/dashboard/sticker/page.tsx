@@ -100,10 +100,7 @@ const ApplicationPage = () => {
             </div>
           ) : filteredApplications.length > 0 ? (
             <div className="flex flex-col w-full justify-between">
-              <PaymentTable
-                applications={filteredApplications}
-                onUpdateApplication={() => console.log("Update application")}
-              />
+              <PaymentTable applications={filteredApplications} />
               <Pagination className="w-full">
                 <PaginationContent className="flex justify-between w-full">
                   <PaginationItem className="cursor-pointer">

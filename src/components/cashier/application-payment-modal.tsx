@@ -1,35 +1,35 @@
-import type { IVehicleApplicationDTO, IVehicleApplicationPaymentDTO } from "@/lib/mockdata";
+import { useVehicleApplicationAddPayment } from "@/hooks/vehicleApplication/useVehicleApplicationAddPayment";
+import type { StickerApplicationPayment, VehicleApplication } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Loader } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { Receipt } from "./application-payment-receipt";
 
 interface ApplicationPaymentModalProps {
-  application: IVehicleApplicationDTO | null;
+  application: VehicleApplication | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateApplication: (id: string, updates: Partial<IVehicleApplicationDTO>) => void;
+  handleViewReceipt: (payment: StickerApplicationPayment | null) => void;
 }
 
 const ApplicationPaymentModal = ({
   application,
   isOpen,
   onClose,
-  onUpdateApplication
+  handleViewReceipt
 }: ApplicationPaymentModalProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
-  const [payment, setPayment] = useState<IVehicleApplicationPaymentDTO | null>(null);
-  const [isPaymentEqualAmount, setIsPaymentEqualAmount] = useState(false);
-  const [isProcessing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { mutate: addPayment, isPending } = useVehicleApplicationAddPayment();
 
-  const applicationPrice = 350;
-  const receiptRef = useRef<HTMLDivElement>(null);
+  const applicationPrice = 300;
 
   useEffect(() => {
     if (isOpen) {
@@ -38,11 +38,6 @@ const ApplicationPaymentModal = ({
       setShowReceipt(false);
     }
   }, [isOpen]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    setIsPaymentEqualAmount(applicationPrice === amount);
-  }, [amount, applicationPrice]);
 
   const submitPayment = async () => {
     if (!application || !amount) {
@@ -56,32 +51,24 @@ const ApplicationPaymentModal = ({
       return;
     }
 
-    setProcessing(true);
-
-    try {
-      const mockPayment: IVehicleApplicationPaymentDTO = {
-        id: application.id,
-        amountPaid: paymentAmount,
-        amountDue: applicationPrice,
-        timePaid: new Date(),
-        change: paymentAmount - applicationPrice,
-        cashier: null
-      };
-
-      onUpdateApplication(application.id, {
-        status: "APPROVED",
-        payment: mockPayment
-      });
-
-      setPayment(mockPayment);
-      console.log("payment set:", mockPayment);
-      setShowReceipt(true);
-    } catch (err) {
-      setError("Failed to process payment. Please try again.");
-      console.error(err);
-    } finally {
-      setProcessing(false);
-    }
+    addPayment(
+      {
+        vehicleApplicationId: application.id,
+        cashTendered: amount,
+        amountDue: applicationPrice
+      },
+      {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: ["vehicleApplications"] });
+          toast.success("Application has been approved");
+          handleViewReceipt(data);
+          onClose();
+        },
+        onError: () => {
+          toast.error("Error adding payment");
+        }
+      }
+    );
   };
 
   return (
@@ -95,12 +82,7 @@ const ApplicationPaymentModal = ({
 
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
-        {showReceipt ? (
-          <div ref={receiptRef}>
-            <Receipt application={application} />
-            {/* <Receipt application={{...application, status:"APPROVED", payment: payment}} />  */}
-          </div>
-        ) : isProcessing ? (
+        {isPending ? (
           <div className="flex flex-col space-y-3 justify-center items-center w-full h-[15rem]">
             <strong className="text-md">Processing Payment</strong>
             <Loader className="h-1/8 w-1/8 animate-spin duration-1000 text-theme" />
@@ -136,7 +118,12 @@ const ApplicationPaymentModal = ({
             />
 
             <DialogFooter className="sm:justify-center gap-2 mt-4">
-              <Button type="button" onClick={submitPayment} disabled={true} className="w-full">
+              <Button
+                type="button"
+                onClick={submitPayment}
+                disabled={isPending || amount < applicationPrice}
+                className="w-full"
+              >
                 Confirm Payment
               </Button>
             </DialogFooter>

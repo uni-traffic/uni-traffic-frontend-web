@@ -130,9 +130,27 @@ export interface VehicleApplication {
   status: string;
   applicantId: string;
   applicant?: User;
+  payment: StickerApplicationPayment | null;
 }
 
 export interface ImageLink {
   url: string;
   alt: string;
+}
+
+export interface StickerApplicationPayment {
+  id: string;
+
+  amountDue: number;
+  cashTendered: number;
+  change: number;
+  totalAmountPaid: number;
+
+  date: Date;
+
+  cashierId: string;
+  cashier: User | null;
+
+  vehicleApplicationId: string;
+  vehicleApplication: VehicleApplication | null;
 }

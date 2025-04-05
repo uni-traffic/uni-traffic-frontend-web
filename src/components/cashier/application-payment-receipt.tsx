@@ -1,17 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { IVehicleApplicationDTO } from "@/lib/mockdata";
+import type { StickerApplicationPayment } from "@/lib/types";
 import { format } from "date-fns";
 import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 import { useRef } from "react";
 
-interface ReceiptProps {
-  application: IVehicleApplicationDTO | null;
-}
-
-export const Receipt = ({ application }: ReceiptProps) => {
+export const StickerApplicationReceipt = ({
+  stickerApplicationPayment
+}: {
+  stickerApplicationPayment: StickerApplicationPayment | null;
+}) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = async () => {
@@ -27,7 +27,7 @@ export const Receipt = ({ application }: ReceiptProps) => {
     });
 
     pdf.addImage(data, "PNG", 0, 0, 250, 250);
-    pdf.save(`${application?.payment?.id}.pdf`);
+    pdf.save(`${stickerApplicationPayment?.id}.pdf`);
   };
 
   return (
@@ -42,31 +42,31 @@ export const Receipt = ({ application }: ReceiptProps) => {
           <div className="text-sm space-y-4 mt-4">
             <div className="flex justify-between">
               <strong>Reference No.:</strong>
-              <span>{application?.payment?.id}</span>
+              <span>{stickerApplicationPayment?.id}</span>
             </div>
             <div className="flex justify-between">
               <strong>Date/Time:</strong>
-              {application?.payment?.timePaid ? (
+              {stickerApplicationPayment?.date ? (
                 <span>
-                  {format(new Date(application?.payment?.timePaid), "MMMM dd, yyyy hh:mm a")}
+                  {format(new Date(stickerApplicationPayment?.date), "MMMM dd, yyyy hh:mm a")}
                 </span>
               ) : null}
             </div>
             <div className="flex justify-between">
               <strong>Cashier:</strong>
-              <span>{`${application?.payment?.cashier?.firstName} ${application?.payment?.cashier?.lastName}`}</span>
+              <span>{`${stickerApplicationPayment?.cashier?.firstName} ${stickerApplicationPayment?.cashier?.lastName}`}</span>
             </div>
             <div className="flex justify-between">
               <strong>Amount Due:</strong>
-              <span>PHP {application?.payment?.amountDue.toFixed(2)}</span>
+              <span>PHP {stickerApplicationPayment?.amountDue.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <strong>Amount Paid:</strong>
-              <span>PHP {application?.payment?.amountPaid.toFixed(2)}</span>
+              <span>PHP {stickerApplicationPayment?.cashTendered.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <strong>Change:</strong>
-              <span>PHP {application?.payment?.change.toFixed(2)}</span>
+              <span>PHP {stickerApplicationPayment?.change.toFixed(2)}</span>
             </div>
           </div>
         </div>
