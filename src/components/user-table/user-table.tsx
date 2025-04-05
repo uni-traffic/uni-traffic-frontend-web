@@ -3,14 +3,6 @@ import type { User } from "@/lib/types";
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "../ui/pagination";
 import RoleUpdateModal from "./role-update-modal";
 
 interface UsersTableProps {
@@ -19,14 +11,9 @@ interface UsersTableProps {
 }
 
 const UsersTable = ({ users, onUpdateUser }: UsersTableProps) => {
-  const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const { user: authUser } = useAuth();
-  const totalPages = Math.ceil(users.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const paginatedUsers = users.slice(startIndex, startIndex + rowsPerPage);
 
   const handleRoleClick = (user: User) => {
     if (user.role === "SUPERADMIN") {
@@ -46,12 +33,6 @@ const UsersTable = ({ users, onUpdateUser }: UsersTableProps) => {
     onUpdateUser(userId, { role });
   };
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
   return (
     <>
       <div className="relative rounded-md border overflow-hidden">
@@ -67,7 +48,7 @@ const UsersTable = ({ users, onUpdateUser }: UsersTableProps) => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {paginatedUsers.map((user) => {
+            {users.map((user) => {
               return (
                 <tr key={user.id} className="bg-card hover:bg-muted/50 transition-colors">
                   <td className="py-3.5 px-4 text-sm text-muted-foreground">{user.username}</td>
@@ -88,27 +69,6 @@ const UsersTable = ({ users, onUpdateUser }: UsersTableProps) => {
             })}
           </tbody>
         </table>
-        <Pagination className="m-2">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-            </PaginationItem>
-            {Array.from({ length: totalPages }).map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <PaginationItem key={index}>
-                <PaginationLink
-                  isActive={currentPage === index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
 
       <RoleUpdateModal

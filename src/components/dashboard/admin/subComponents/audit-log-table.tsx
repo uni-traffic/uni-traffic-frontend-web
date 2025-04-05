@@ -1,12 +1,4 @@
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
-import {
   Table,
   TableBody,
   TableCell,
@@ -16,7 +8,6 @@ import {
 } from "@/components/ui/table";
 import type { ViolationRecordAuditLog } from "@/lib/types";
 import { format } from "date-fns";
-import { useState } from "react";
 import UserAvatar from "../../../user-table/user-avatar";
 import StatusBadge from "./status-badge";
 
@@ -26,18 +17,6 @@ interface UserTableProps {
 }
 
 const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
-  const rowsPerPage = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(auditLogData.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const paginatedAuditLogData = auditLogData.slice(startIndex, startIndex + rowsPerPage);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
   return (
     <div className="overflow-hidden rounded-md border flex-1">
       <Table>
@@ -50,7 +29,7 @@ const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedAuditLogData.map((auditLog) => (
+          {auditLogData.map((auditLog) => (
             <TableRow
               key={auditLog.id}
               className="cursor-pointer transition-colors hover:bg-muted/50"
@@ -83,27 +62,6 @@ const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
           ))}
         </TableBody>
       </Table>
-      <Pagination className="m-2">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-          </PaginationItem>
-          {Array.from({ length: totalPages }).map((_, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            <PaginationItem key={index}>
-              <PaginationLink
-                isActive={currentPage === index + 1}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
     </div>
   );
 };
