@@ -1,6 +1,7 @@
 "use client";
 
 import api from "@/api/axios";
+import { PaginationControls } from "@/components/common/paginationControls";
 import AuditLogDetailModal from "@/components/dashboard/admin/subComponents/audit-log-detail-modal";
 import AuditLogTable from "@/components/dashboard/admin/subComponents/audit-log-table";
 import FilterSelect from "@/components/dashboard/admin/subComponents/filter-select";
@@ -158,22 +159,30 @@ export const AdminDashboard = () => {
             />
           </div>
 
-          {fetching ? (
-            <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
-              <RingLoader />
-              <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
-            </div>
-          ) : !fetching && auditLogs.length > 0 ? (
-            <AuditLogTable
-              auditLogData={filteredAuditLogs}
-              onAuditLogSelect={handleAuditLogSelect}
-            />
-          ) : (
-            <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
-              <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
-              <p className="font-bold font-mono">NO RECENT ACTIVITIES FOUND</p>
-            </div>
-          )}
+          <div className="flex flex-1">
+            {fetching ? (
+              <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+                <RingLoader />
+                <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+              </div>
+            ) : !fetching && auditLogs.length > 0 ? (
+              <div className="flex flex-col w-full justify-between">
+                <AuditLogTable
+                  auditLogData={filteredAuditLogs}
+                  onAuditLogSelect={handleAuditLogSelect}
+                />
+                <PaginationControls
+                  prev={() => console.log("Prev")}
+                  next={() => console.log("Next")}
+                />
+              </div>
+            ) : (
+              <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+                <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+                <p className="font-bold font-mono">NO RECENT ACTIVITIES FOUND</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

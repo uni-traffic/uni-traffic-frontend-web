@@ -44,6 +44,7 @@ const PaymentTable = ({ applications, onUpdateApplication }: ApplicationsTablePr
           <tbody className="divide-y">
             {applications.map((record) => {
               const user = record.applicant;
+
               return (
                 <tr key={record.id} className="bg-card hover:bg-muted/50 transition-colors">
                   <td className="py-3.5 px-4 font-bold">{record.id}</td>

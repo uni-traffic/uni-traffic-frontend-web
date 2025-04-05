@@ -1,9 +1,9 @@
-import { useState } from "react";
-import RoleUpdateModal from "./role-update-modal";
-import type { User } from "@/lib/types";
 import { useAuth } from "@/context/auth-context";
-import { Button } from "../ui/button";
+import type { User } from "@/lib/types";
 import { MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import RoleUpdateModal from "./role-update-modal";
 
 interface UsersTableProps {
   users: User[];
