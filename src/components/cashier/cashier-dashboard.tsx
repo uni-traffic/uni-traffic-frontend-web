@@ -1,6 +1,7 @@
 "use client";
 
 import api from "@/api/axios";
+import { PaginationControls } from "@/components/common/paginationControls";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,13 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
 import SearchInput from "@/components/violation-table/search-input";
 import ViolationsTable from "@/components/violation-table/violation-table";
 import type { ViolationRecord } from "@/lib/types";
@@ -153,16 +147,10 @@ export const CashierDashboard = () => {
                 violations={displayedViolations}
                 onUpdateViolation={handleUpdateViolation}
               />
-              <Pagination className="w-full">
-                <PaginationContent className="flex justify-between w-full">
-                  <PaginationItem className="cursor-pointer">
-                    <PaginationPrevious />
-                  </PaginationItem>
-                  <PaginationItem className="cursor-pointer">
-                    <PaginationNext />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <PaginationControls
+                prev={() => console.log("Prev")}
+                next={() => console.log("Next")}
+              />
             </div>
           ) : (
             <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">

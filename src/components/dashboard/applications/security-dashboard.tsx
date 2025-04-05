@@ -1,5 +1,6 @@
 "use client";
 import ApplicationsTable from "@/components/applications-table/applications-table";
+import { PaginationControls } from "@/components/common/paginationControls";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,13 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
 import SearchInput from "@/components/violation-table/search-input";
 import { useVehicleApplications } from "@/hooks/vehicleApplication/useVehicleApplications";
 import type { VehicleApplication } from "@/lib/types";
@@ -91,31 +85,27 @@ export const SecurityDashboard = () => {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
-            <RingLoader />
-            <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
-          </div>
-        ) : filteredApplications.length > 0 ? (
-          <div className="flex flex-col w-full justify-between">
-            <ApplicationsTable applications={filteredApplications} />
-            <Pagination className="w-full">
-              <PaginationContent className="flex justify-between w-full">
-                <PaginationItem className="cursor-pointer">
-                  <PaginationPrevious />
-                </PaginationItem>
-                <PaginationItem className="cursor-pointer">
-                  <PaginationNext />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        ) : (
-          <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
-            <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
-            <p className="font-semibold font-mono">NO VEHICLE APPLICATIONS FOUND</p>
-          </div>
-        )}
+        <div className="flex flex-1">
+          {isLoading ? (
+            <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
+              <RingLoader />
+              <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
+            </div>
+          ) : filteredApplications.length > 0 ? (
+            <div className="flex flex-col w-full justify-between">
+              <ApplicationsTable applications={filteredApplications} />
+              <PaginationControls
+                prev={() => console.log("Prev")}
+                next={() => console.log("Next")}
+              />
+            </div>
+          ) : (
+            <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
+              <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
+              <p className="font-semibold font-mono">NO VEHICLE APPLICATIONS FOUND</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
