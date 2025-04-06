@@ -57,11 +57,15 @@ export const StickerApplicationReceipt = ({
               <span>{`${stickerApplicationPayment?.cashier?.firstName} ${stickerApplicationPayment?.cashier?.lastName}`}</span>
             </div>
             <div className="flex justify-between">
+              <strong>Description:</strong>
+              <span>NEU-VPS</span>
+            </div>
+            <div className="flex justify-between">
               <strong>Amount Due:</strong>
               <span>PHP {stickerApplicationPayment?.amountDue.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <strong>Amount Paid:</strong>
+              <strong>Cash Tendered:</strong>
               <span>PHP {stickerApplicationPayment?.cashTendered.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">

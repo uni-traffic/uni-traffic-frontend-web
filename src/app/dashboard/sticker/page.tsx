@@ -1,7 +1,7 @@
 "use client";
 
 import SearchInput from "@/components/applications-table/search-input";
-import PaymentTable from "@/components/cashier/payment-table";
+import CashierStickerApplicationTable from "@/components/cashier/cashier-sticker-application-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -100,7 +100,7 @@ const ApplicationPage = () => {
             </div>
           ) : filteredApplications.length > 0 ? (
             <div className="flex flex-col w-full justify-between">
-              <PaymentTable applications={filteredApplications} />
+              <CashierStickerApplicationTable applications={filteredApplications} />
               <Pagination className="w-full">
                 <PaginationContent className="flex justify-between w-full">
                   <PaginationItem className="cursor-pointer">
