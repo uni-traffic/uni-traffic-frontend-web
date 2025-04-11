@@ -48,6 +48,12 @@ const items = [
     accessRole: ["CASHIER"]
   },
   {
+    title: "Sticker Applications",
+    url: "/dashboard/application",
+    icon: CarFront,
+    accessRole:["SECURITY"]
+  },
+  {
     title: "Settings",
     url: "/dashboard/settings",
     icon: Settings2,
