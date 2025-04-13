@@ -1,88 +1,54 @@
 "use client";
 
-import api from "@/api/axios";
-import { PaginationControls } from "@/components/common/paginationControls";
 import AuditLogDetailModal from "@/components/dashboard/admin/subComponents/audit-log-detail-modal";
 import AuditLogTable from "@/components/dashboard/admin/subComponents/audit-log-table";
-import FilterSelect from "@/components/dashboard/admin/subComponents/filter-select";
 import StatCard from "@/components/dashboard/admin/subComponents/stat-card";
-import SearchInput from "@/components/user-table/search-input";
-import type { ViolationRecordAuditLog } from "@/lib/types";
-import { sortViolationRecordAuditLogsByDate } from "@/lib/utils";
-import type { AxiosError } from "axios";
+import { useAuditLogs } from "@/hooks/auditLog/useAuditLogs";
+import { useUserSignInActivityByRange } from "@/hooks/user/useSignInActivityByRange";
+import { useTotalUserCount } from "@/hooks/user/useTotalUserCount";
+import { useViolationPaymentsByRange } from "@/hooks/violation/useViolationPaymentsByRange";
+import { useViolationsGivenPerDayByRange } from "@/hooks/violation/useViolationsGivenPerDayByRange";
+import type { AuditLog } from "@/lib/types";
+import { getFirstDayOfCurrentMonth, getLastDayOfCurrentMonth } from "@/lib/utils";
 import { Activity, AlertTriangle, DollarSign, FileX2, Users } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { RingLoader } from "react-spinners";
-import { toast } from "sonner";
-
-const filterOptions = [
-  { label: "All Type", value: "ALL" },
-  { label: "CREATE", value: "CREATE" },
-  { label: "UPDATE", value: "UPDATE" },
-  { label: "DELETE", value: "DELETE" }
-];
 
 export const AdminDashboard = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterValue, setFilterValue] = useState("ALL");
-  const [auditLogs, setAuditLogs] = useState<ViolationRecordAuditLog[]>([]);
-  const [filteredAuditLogs, setFilteredAuditLogs] = useState<ViolationRecordAuditLog[]>([]);
-  const [selectedAuditLogs, setSelectedAuditLogs] = useState<ViolationRecordAuditLog | null>(null);
+  const { data, isLoading } = useAuditLogs({ page: 1, count: 8 });
+  const { data: users, isLoading: isLoadingUsers } = useTotalUserCount("ALL");
+  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useUserSignInActivityByRange({
+    startDate: getFirstDayOfCurrentMonth(),
+    endDate: getLastDayOfCurrentMonth()
+  });
+  const { data: violationsGiven, isLoading: isLoadingViolationsGiven } =
+    useViolationsGivenPerDayByRange({
+      startDate: getFirstDayOfCurrentMonth(),
+      endDate: getLastDayOfCurrentMonth()
+    });
+  const { data: violationPaymentCollected, isLoading: isLoadingviolationPaymentCollected } =
+    useViolationPaymentsByRange({
+      startDate: getFirstDayOfCurrentMonth(),
+      endDate: getLastDayOfCurrentMonth()
+    });
+  const [selectedAuditLogs, setSelectedAuditLogs] = useState<AuditLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [fetching, setFetching] = useState(true);
 
-  const fetchViolationRecordAuditLog = useCallback(async () => {
-    try {
-      const response = await api.get("/audit-log/violation-record/search", {
-        params: {
-          page: 1,
-          count: 20
-        }
-      });
-      if (response.status !== 200) return;
-
-      setAuditLogs(sortViolationRecordAuditLogsByDate(response.data));
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      const { message } = axiosError.response?.data as { message?: string };
-
-      toast.error(`${axiosError.status}: ${message || "Failed to fetch recent activities"}`);
-    } finally {
-      setFetching(false);
-    }
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    if (!searchTerm.trim()) {
-      setFilteredAuditLogs(auditLogs);
-      return;
-    }
-
-    const filtered = auditLogs.filter(
-      (auditLogData) =>
-        `${auditLogData.actor?.firstName} ${auditLogData.actor?.lastName}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        auditLogData.actor?.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const getTotalViolations = () => {
+    return ((violationsGiven ?? []) as { violationsIssued: number }[]).reduce(
+      (sum, item) => sum + (item.violationsIssued || 0),
+      0
     );
-
-    setFilteredAuditLogs(filtered);
-  }, [searchTerm, auditLogs]);
-
-  const handleStatusFilter = (role: string) => {
-    setFilterValue(role);
-    if (role === "ALL") {
-      setFilteredAuditLogs(auditLogs);
-      return;
-    }
-
-    const filtered = auditLogs.filter(
-      (user) => user.auditLogType.toUpperCase() === role.toUpperCase()
-    );
-    setFilteredAuditLogs(filtered);
   };
 
-  const handleAuditLogSelect = (auditLogData: ViolationRecordAuditLog) => {
+  const getViolationsPaymentCollected = () => {
+    return ((violationPaymentCollected ?? []) as { amountPaid: number }[]).reduce(
+      (sum, item) => sum + (item.amountPaid || 0),
+      0
+    );
+  };
+
+  const handleAuditLogSelect = (auditLogData: AuditLog) => {
     setSelectedAuditLogs(auditLogData);
     setIsModalOpen(true);
   };
@@ -90,14 +56,6 @@ export const AdminDashboard = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
-
-  useEffect(() => {
-    fetchViolationRecordAuditLog();
-  }, [fetchViolationRecordAuditLog]);
 
   return (
     <div className="flex h-full overflow-hidden bg-gray-50 p-8 animate-fade-in">
@@ -110,27 +68,31 @@ export const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Users"
-            value="128"
-            description="Last 30 days"
+            value={users?.count}
+            description="Total User Count"
             icon={<Users className="h-6 w-6 text-blue-500" />}
+            isLoading={isLoadingUsers}
           />
           <StatCard
             title="Active Users"
-            value="96"
+            value={activeUsers?.count}
             description="Currently Active"
             icon={<Activity className="h-6 w-6 text-green-500" />}
+            isLoading={isLoadingActiveUsers}
           />
           <StatCard
             title="Violation Given"
-            value="32"
-            description="Violations issued."
+            value={getTotalViolations()}
+            description="Current Month"
             icon={<AlertTriangle className="h-6 w-6 text-red-500" />}
+            isLoading={isLoadingViolationsGiven}
           />
           <StatCard
-            title="Total Fine Amount"
-            value="5"
-            description="Total Fine"
+            title="Total Amount Collected from Violations"
+            value={getViolationsPaymentCollected().toFixed(2)}
+            description="Current Month"
             icon={<DollarSign className="h-6 w-6 text-purple-500" />}
+            isLoading={isLoadingviolationPaymentCollected}
           />
         </div>
 
@@ -142,39 +104,39 @@ export const AdminDashboard = () => {
             <h2 className="text-2xl font-bold mb-1">Recent Activities</h2>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between">
-            <div className="w-full sm:max-w-md">
-              <SearchInput
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onSearch={handleSearch}
-                placeholder="Search..."
-              />
-            </div>
-            <FilterSelect
-              value={filterValue}
-              onValueChange={handleStatusFilter}
-              options={filterOptions}
-              placeholder="All Type"
-            />
-          </div>
+          {/*<div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between">*/}
+          {/*  <div className="w-full sm:max-w-md">*/}
+          {/*    <SearchInput*/}
+          {/*      value={searchTerm}*/}
+          {/*      onChange={setSearchTerm}*/}
+          {/*      onSearch={handleSearch}*/}
+          {/*      placeholder="Search..."*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*  <FilterSelect*/}
+          {/*    value={filterValue}*/}
+          {/*    onValueChange={handleStatusFilter}*/}
+          {/*    options={filterOptions}*/}
+          {/*    placeholder="All Type"*/}
+          {/*  />*/}
+          {/*</div>*/}
 
           <div className="flex flex-1">
-            {fetching ? (
+            {isLoading ? (
               <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
                 <RingLoader />
                 <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
               </div>
-            ) : !fetching && auditLogs.length > 0 ? (
+            ) : !isLoading && data.auditLogs.length > 0 ? (
               <div className="flex flex-col w-full justify-between">
                 <AuditLogTable
-                  auditLogData={filteredAuditLogs}
+                  auditLogData={data.auditLogs}
                   onAuditLogSelect={handleAuditLogSelect}
                 />
-                <PaginationControls
-                  prev={() => console.log("Prev")}
-                  next={() => console.log("Next")}
-                />
+                {/*<PaginationControls*/}
+                {/*  prev={() => console.log("Prev")}*/}
+                {/*  next={() => console.log("Next")}*/}
+                {/*/>*/}
               </div>
             ) : (
               <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">

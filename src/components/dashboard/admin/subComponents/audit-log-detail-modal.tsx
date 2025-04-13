@@ -1,11 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { ViolationRecordAuditLog } from "@/lib/types";
+import type { AuditLog } from "@/lib/types";
 import { format } from "date-fns";
 
 interface UserDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  auditLog: ViolationRecordAuditLog | null;
+  auditLog: AuditLog | null;
 }
 
 const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps) => {
@@ -42,7 +42,7 @@ const AuditLogDetailModal = ({ isOpen, onClose, auditLog }: UserDetailModalProps
 
             <div className="flex justify-between">
               <span className="text-muted-foreground">Type:</span>
-              <span>{auditLog.auditLogType}</span>
+              <span>{auditLog.actionType}</span>
             </div>
 
             <div className="flex justify-between">

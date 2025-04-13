@@ -37,3 +37,12 @@ export const softViolationRecordByDate = (
     return dateB.getTime() - dateA.getTime();
   });
 };
+
+export const getFirstDayOfCurrentMonth = (): string =>
+  formatDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+
+export const getLastDayOfCurrentMonth = (): string =>
+  formatDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
+
+export const formatDate = (date: Date): string =>
+  `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, "0")}-${`${date.getDate()}`.padStart(2, "0")}`;
