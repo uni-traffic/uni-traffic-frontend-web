@@ -6,14 +6,14 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import type { ViolationRecordAuditLog } from "@/lib/types";
+import type { AuditLog } from "@/lib/types";
 import { format } from "date-fns";
 import UserAvatar from "../../../user-table/user-avatar";
 import StatusBadge from "./status-badge";
 
 interface UserTableProps {
-  auditLogData: ViolationRecordAuditLog[];
-  onAuditLogSelect: (auditLogData: ViolationRecordAuditLog) => void;
+  auditLogData: AuditLog[];
+  onAuditLogSelect: (auditLogData: AuditLog) => void;
 }
 
 const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
@@ -50,7 +50,7 @@ const AuditLogTable = ({ auditLogData, onAuditLogSelect }: UserTableProps) => {
                 </div>
               </TableCell>
               <TableCell>
-                <StatusBadge status={auditLog.auditLogType} />
+                <StatusBadge status={auditLog.actionType} />
               </TableCell>
               <TableCell className="max-w-[10vw]">
                 <p className="truncate w-[10vw]">{auditLog.details}</p>

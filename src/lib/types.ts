@@ -154,3 +154,14 @@ export interface StickerApplicationPayment {
   vehicleApplicationId: string;
   vehicleApplication: VehicleApplication | null;
 }
+
+export interface AuditLog {
+  id: string;
+  actionType: string;
+  details: string;
+  createdAt: Date;
+  updatedAt: Date;
+  actorId: string;
+  actor?: User | null;
+  objectId: string;
+}
