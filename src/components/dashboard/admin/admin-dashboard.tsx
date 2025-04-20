@@ -1,18 +1,21 @@
 "use client";
 
+import UniqueSignInChart from "@/components/common/charts/UniqueSignInChart";
+import VehicleApplicationChart from "@/components/common/charts/VehicleApplicationChart";
+import ViolationRecordChart from "@/components/common/charts/ViolationRecordChart";
+import ViolationsGivenChart from "@/components/common/charts/ViolationsGivenChart";
 import AuditLogDetailModal from "@/components/dashboard/admin/subComponents/audit-log-detail-modal";
-import AuditLogTable from "@/components/dashboard/admin/subComponents/audit-log-table";
 import StatCard from "@/components/dashboard/admin/subComponents/stat-card";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { useAuditLogs } from "@/hooks/auditLog/useAuditLogs";
 import { useUserSignInActivityByRange } from "@/hooks/user/useSignInActivityByRange";
 import { useTotalUserCount } from "@/hooks/user/useTotalUserCount";
 import { useViolationPaymentsByRange } from "@/hooks/violation/useViolationPaymentsByRange";
 import { useViolationsGivenPerDayByRange } from "@/hooks/violation/useViolationsGivenPerDayByRange";
 import type { AuditLog } from "@/lib/types";
-import { getFirstDayOfCurrentMonth, getLastDayOfCurrentMonth } from "@/lib/utils";
-import { Activity, AlertTriangle, DollarSign, FileX2, Users } from "lucide-react";
+import { formatNumber, getFirstDayOfCurrentMonth, getLastDayOfCurrentMonth } from "@/lib/utils";
+import { Activity, AlertTriangle, DollarSign, Users } from "lucide-react";
 import { useMemo, useState } from "react";
-import { RingLoader } from "react-spinners";
 
 export const AdminDashboard = () => {
   const startDate = useMemo(() => getFirstDayOfCurrentMonth(), []);
@@ -59,6 +62,7 @@ export const AdminDashboard = () => {
     setIsModalOpen(false);
   };
 
+  // @ts-ignore
   return (
     <div className="flex h-full overflow-hidden bg-gray-50 p-8 animate-fade-in">
       <div className="flex flex-col w-full">
@@ -91,62 +95,39 @@ export const AdminDashboard = () => {
           />
           <StatCard
             title="Total Amount Collected from Violations"
-            value={getViolationsPaymentCollected().toFixed(2)}
+            value={formatNumber(getViolationsPaymentCollected())}
             description="Current Month"
             icon={<DollarSign className="h-6 w-6 text-purple-500" />}
             isLoading={isLoadingViolationPaymentCollected}
           />
         </div>
 
-        <div
-          className="flex flex-1 flex-col p-6 rounded-lg shadow-sm border animate-slide-up bg-white"
-          style={{ animationDelay: "0.1s" }}
-        >
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-1">Recent Activities</h2>
-          </div>
+        <div className="flex-1">
+          <Carousel className="w-full h-full">
+            <CarouselContent className="h-full">
+              {/* Page 1 - Violation Record & Vehicle Application */}
+              <CarouselItem className="h-full ">
+                <div className="grid gap-6 md:grid-cols-2 h-full shadow-sm md:bg-card md:border md:rounded-xl">
+                  <ViolationRecordChart className="h-full md:rounded-r-none md:border-0 shadow-none" />
+                  <VehicleApplicationChart className="h-full md:rounded-l-none md:border-0 shadow-none" />
+                </div>
+              </CarouselItem>
 
-          {/*<div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between">*/}
-          {/*  <div className="w-full sm:max-w-md">*/}
-          {/*    <SearchInput*/}
-          {/*      value={searchTerm}*/}
-          {/*      onChange={setSearchTerm}*/}
-          {/*      onSearch={handleSearch}*/}
-          {/*      placeholder="Search..."*/}
-          {/*    />*/}
-          {/*  </div>*/}
-          {/*  <FilterSelect*/}
-          {/*    value={filterValue}*/}
-          {/*    onValueChange={handleStatusFilter}*/}
-          {/*    options={filterOptions}*/}
-          {/*    placeholder="All Type"*/}
-          {/*  />*/}
-          {/*</div>*/}
+              {/* Page 2 - Violations Given */}
+              <CarouselItem className=" h-full">
+                <div className="grid gap-6 h-full shadow-sm">
+                  <ViolationsGivenChart className="h-full" />
+                </div>
+              </CarouselItem>
 
-          <div className="flex flex-1">
-            {isLoading ? (
-              <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
-                <RingLoader />
-                <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
-              </div>
-            ) : !isLoading && data?.auditLogs.length > 0 ? (
-              <div className="flex flex-col w-full justify-between">
-                <AuditLogTable
-                  auditLogData={data?.auditLogs}
-                  onAuditLogSelect={handleAuditLogSelect}
-                />
-                {/*<PaginationControls*/}
-                {/*  prev={() => console.log("Prev")}*/}
-                {/*  next={() => console.log("Next")}*/}
-                {/*/>*/}
-              </div>
-            ) : (
-              <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
-                <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
-                <p className="font-bold font-mono">NO RECENT ACTIVITIES FOUND</p>
-              </div>
-            )}
-          </div>
+              {/* Page 3 - Unique Sign In */}
+              <CarouselItem className=" h-full">
+                <div className="grid gap-6 h-full shadow-sm">
+                  <UniqueSignInChart className="h-full" />
+                </div>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
 

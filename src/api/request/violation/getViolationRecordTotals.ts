@@ -1,0 +1,13 @@
+import api from "@/api/axios";
+import type { AxiosError } from "axios";
+
+export const getViolationRecordTotals = async () => {
+  try {
+    const response = await api.get("/violation-record/stats/totals");
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError;
+    console.error(error);
+    throw new Error(error.message);
+  }
+};
