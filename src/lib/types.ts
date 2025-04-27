@@ -56,6 +56,7 @@ export interface Violation {
   category: string;
   violationName: string;
   penalty: number;
+  isDeleted: boolean;
 }
 
 export interface ViolationRecord {
@@ -164,4 +165,12 @@ export interface AuditLog {
   actorId: string;
   actor?: User | null;
   objectId: string;
+}
+
+export interface GetViolationResponse {
+  violation: Violation[];
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  totalPages: number;
+  isDeleted: boolean;
 }

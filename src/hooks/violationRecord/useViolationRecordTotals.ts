@@ -1,4 +1,4 @@
-import { getViolationRecordTotals } from "@/api/request/violation/getViolationRecordTotals";
+import { getViolationRecordTotals } from "@/api/request/violationRecord/getViolationRecordTotals";
 import { useQuery } from "@tanstack/react-query";
 
 export const useViolationRecordTotals = () => {

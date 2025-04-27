@@ -1,4 +1,4 @@
-import { getTotalViolationsByRange } from "@/api/request/violation/getTotalViolationsByRange";
+import { getTotalViolationsByRange } from "@/api/request/violationRecord/getTotalViolationsByRange";
 import { useQuery } from "@tanstack/react-query";
 
 export const useTotalViolationsByRange = ({

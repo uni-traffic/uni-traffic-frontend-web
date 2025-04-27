@@ -1,6 +1,5 @@
 "use client";
 import ApplicationsTable from "@/components/applications-table/applications-table";
-import { PaginationControls } from "@/components/common/paginationControls";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -94,10 +93,10 @@ export const SecurityDashboard = () => {
           ) : filteredApplications.length > 0 ? (
             <div className="flex flex-col w-full justify-between">
               <ApplicationsTable applications={filteredApplications} />
-              <PaginationControls
-                prev={() => console.log("Prev")}
-                next={() => console.log("Next")}
-              />
+              {/*<PaginationControls*/}
+              {/*  prev={() => console.log("Prev")}*/}
+              {/*  next={() => console.log("Next")}*/}
+              {/*/>*/}
             </div>
           ) : (
             <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">

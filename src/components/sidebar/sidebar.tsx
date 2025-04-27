@@ -1,7 +1,15 @@
 "use client";
 
 import { useAuth } from "@/context/auth-context";
-import { CarFront, ChevronsLeft, ChevronsRight,  Home, Settings2, Users } from "lucide-react";
+import {
+  CarFront,
+  ChevronsLeft,
+  ChevronsRight,
+  FilePenLine,
+  Home,
+  Settings2,
+  Users
+} from "lucide-react";
 import Link from "next/link";
 import { Separator } from "../ui/separator";
 import {
@@ -52,6 +60,12 @@ const items = [
     url: "/dashboard/settings",
     icon: Settings2,
     accessRole: []
+  },
+  {
+    title: "Violations",
+    url: "/dashboard/violations",
+    icon: FilePenLine,
+    accessRole: ["ADMIN", "SUPERADMIN"]
   }
 ];
 
