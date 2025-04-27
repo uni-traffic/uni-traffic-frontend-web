@@ -1,5 +1,5 @@
 import FilterSelect from "@/components/common/FilterSelect";
-import { useTotalViolationsByRange } from "@/hooks/violation/useTotalViolationsByRange";
+import { useTotalViolationsByRange } from "@/hooks/violationRecord/useTotalViolationsByRange";
 import { getDateForRange } from "@/lib/utils";
 import type React from "react";
 import { useEffect, useMemo } from "react";

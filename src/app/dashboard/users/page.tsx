@@ -1,7 +1,6 @@
 "use client";
 
 import api from "@/api/axios";
-import { PaginationControls } from "@/components/common/paginationControls";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -152,10 +151,10 @@ const UsersPage = () => {
           ) : !fetching && originalUsers.length > 0 ? (
             <div className="flex flex-col w-full justify-between">
               <UsersTable users={displayedUsers} onUpdateUser={handleUpdateUser} />
-              <PaginationControls
-                prev={() => console.log("Prev")}
-                next={() => console.log("Next")}
-              />
+              {/*<PaginationControls*/}
+              {/*  prev={() => console.log("Prev")}*/}
+              {/*  next={() => console.log("Next")}*/}
+              {/*/>*/}
             </div>
           ) : (
             <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">

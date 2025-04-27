@@ -10,8 +10,8 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { useAuditLogs } from "@/hooks/auditLog/useAuditLogs";
 import { useUserSignInActivityByRange } from "@/hooks/user/useSignInActivityByRange";
 import { useTotalUserCount } from "@/hooks/user/useTotalUserCount";
-import { useViolationPaymentsByRange } from "@/hooks/violation/useViolationPaymentsByRange";
-import { useViolationsGivenPerDayByRange } from "@/hooks/violation/useViolationsGivenPerDayByRange";
+import { useViolationPaymentsByRange } from "@/hooks/violationRecord/useViolationPaymentsByRange";
+import { useViolationsGivenPerDayByRange } from "@/hooks/violationRecord/useViolationsGivenPerDayByRange";
 import type { AuditLog } from "@/lib/types";
 import { formatNumber, getFirstDayOfCurrentMonth, getLastDayOfCurrentMonth } from "@/lib/utils";
 import { Activity, AlertTriangle, DollarSign, Users } from "lucide-react";

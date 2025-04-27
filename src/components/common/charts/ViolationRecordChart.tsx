@@ -1,4 +1,4 @@
-import { useViolationRecordTotals } from "@/hooks/violation/useViolationRecordTotals";
+import { useViolationRecordTotals } from "@/hooks/violationRecord/useViolationRecordTotals";
 import { formatNumber } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";

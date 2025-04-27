@@ -1,4 +1,4 @@
-import { getViolationPaymentsByRange } from "@/api/request/violation/getViolationPaymentsByRange";
+import { getViolationPaymentsByRange } from "@/api/request/violationRecord/getViolationPaymentsByRange";
 import { useQuery } from "@tanstack/react-query";
 
 export const useViolationPaymentsByRange = ({

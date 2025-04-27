@@ -1,4 +1,4 @@
-import { getViolationsGivenPerDayByRange } from "@/api/request/violation/getViolationsGivenPerDayByRange";
+import { getViolationsGivenPerDayByRange } from "@/api/request/violationRecord/getViolationsGivenPerDayByRange";
 import { useQuery } from "@tanstack/react-query";
 
 export const useViolationsGivenPerDayByRange = ({

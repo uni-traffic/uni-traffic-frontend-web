@@ -9,12 +9,13 @@ const generateUser = (): IUserDTO => ({
   role: faker.helpers.arrayElement(["Admin", "User", "Moderator"])
 });
 
-const generateViolation = (): IViolationDTO => ({
+export const generateViolation = (): IViolationDTO => ({
   id: faker.string.uuid(),
   category: faker.helpers.arrayElement(["Parking", "Speeding", "Illegal Turn"]),
   violationName: faker.lorem.words(2),
   penalty: faker.number.int({ min: 50, max: 500 })
 });
+export const generateViolationData = Array.from({ length: 10 }, generateViolation);
 
 const generateVehicle = (): IVehicleDTO => ({
   id: faker.string.uuid(),
