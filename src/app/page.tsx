@@ -1,7 +1,7 @@
 "use client";
 
-import { RedirectToDashboard } from "@/components/auth/redirect-to-dashboard";
-import { Header } from "@/components/common/header";
+import { RedirectToDashboard } from "@/components/auth/RedirectToDashboard";
+import { Header } from "@/components/common/Header";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 

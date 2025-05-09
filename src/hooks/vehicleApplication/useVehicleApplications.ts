@@ -1,42 +1,26 @@
-import { getVehicleApplication } from "@/api/request/vehicleApplication/getVehicleApplication";
-import type { VehicleApplicationStatus, VehicleApplicationUserType } from "@/lib/types";
+import { getVehicleApplications } from "@/api/request/vehicleApplication/getVehicleApplication";
 import { useQuery } from "@tanstack/react-query";
 
-export const useVehicleApplications = ({
-  id,
-  schoolId,
-  driverLicenseId,
-  licensePlate,
-  status,
-  applicantId,
-  userType,
-  count,
-  page
-}: {
+export const useVehicleApplications = (params: {
   id?: string;
   schoolId?: string;
   driverLicenseId?: string;
+  driverLastName?: string;
+  driverFirstName?: string;
+  firstName?: string;
+  lastName?: string;
   licensePlate?: string;
-  status?: VehicleApplicationStatus;
+  status?: string;
   applicantId?: string;
-  userType?: VehicleApplicationUserType;
+  userType?: string;
+  sort?: "1" | "2";
+  searchKey?: string;
   count?: number;
   page?: number;
 }) => {
   return useQuery({
-    queryFn: () =>
-      getVehicleApplication({
-        id,
-        schoolId,
-        driverLicenseId,
-        licensePlate,
-        status,
-        applicantId,
-        userType,
-        count,
-        page
-      }),
-    queryKey: ["vehicleApplications"],
-    staleTime: 60 * 1000
+    queryKey: ["vehicleApplications", params],
+    queryFn: () => getVehicleApplications(params),
+    placeholderData: (prev) => prev
   });
 };

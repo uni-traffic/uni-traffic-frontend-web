@@ -1,22 +1,34 @@
 "use client";
 
-import { PaginationControls } from "@/components/common/paginationControls";
+import { ContentLoading } from "@/components/common/ContentLoading";
+import { PaginationControls } from "@/components/common/PaginationControls";
+import { SearchInput } from "@/components/common/SearchInput";
+import { ViolationCreateModal } from "@/components/modals/violation/ViolationCreateModal";
+import { ViolationsTable } from "@/components/tables/violation/ViolationsTable";
 import { Button } from "@/components/ui/button";
-import ViolationCreateModal from "@/components/violation-table/ViolationCreateModal";
-import ViolationsTable from "@/components/violation-table/ViolationsTable";
-import SearchInput from "@/components/violation-table/search-input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { useViolations } from "@/hooks/violation/useViolations";
 import type { Violation } from "@/lib/types";
-import { FilePenLine, FileX2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { RingLoader } from "react-spinners";
+import { FilePenLine, FileX2, Filter } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+const filters: { value: string; label: string }[] = [
+  { value: "ALL", label: "ALL" },
+  { value: "false", label: "ACTIVE" },
+  { value: "true", label: "DELETED" }
+];
 
 export default function ViolationsPage() {
-  const [originalViolations, setOriginalViolations] = useState<Violation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [isCreateViolationModalOpen, setIsCreateViolationModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -25,30 +37,37 @@ export default function ViolationsPage() {
     }
   }, [searchQuery]);
 
-  const { data: queryResults, isFetching: fetching } = useViolations({
+  const {
+    data: fetchedViolationData,
+    isFetching,
+    isError
+  } = useViolations({
     page: page,
     count: 9,
-    ...(appliedSearchQuery.trim() !== "" && { searchKey: appliedSearchQuery })
+    ...(appliedSearchQuery.trim() !== "" && { searchKey: appliedSearchQuery }),
+    ...((statusFilter === "true" || statusFilter === "false") && {
+      isDeleted: statusFilter === "true"
+    })
   });
 
-  useEffect(() => {
-    if (queryResults) {
-      setOriginalViolations(queryResults.violation || []);
-    }
-  }, [queryResults]);
+  const violations: Violation[] = fetchedViolationData?.violation ?? [];
 
   const handleSearch = () => {
     setAppliedSearchQuery(searchQuery);
     setPage(1);
   };
 
+  const handleRoleFilterChange = useCallback((role: string) => {
+    setStatusFilter(role);
+    setPage(1);
+  }, []);
+
   return (
     <>
       <div className="flex flex-1 flex-col h-full bg-gray-50 p-8 animate-fade-in">
         <div className="flex flex-1 flex-col p-6 w-full rounded-lg shadow-sm border mx-auto animate-fade-in">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-1">Violation Records</h1>
-            <p className="text-muted-foreground">Violation Payment Review Panel</p>
+            <h1 className="text-3xl font-bold text-foreground mb-1">Violations</h1>
           </div>
 
           <div className="mb-6 flex justify-between items-center gap-4 flex-col sm:flex-row">
@@ -60,44 +79,75 @@ export default function ViolationsPage() {
                 placeholder="Search"
               />
             </div>
-            <Button
-              variant="outline"
-              className="min-w-[100px]"
-              onClick={() => setCreateModalOpen(true)}
-            >
-              <FilePenLine /> New
-            </Button>
+            <div className="flex flex-row gap-x-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-full min-w-[100px] flex flex-row justify-start"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {statusFilter === "ALL"
+                      ? "ALL"
+                      : statusFilter === "false"
+                        ? "ACTIVE"
+                        : "DELETED"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="font-semibold font-mono">
+                  {filters.map((filter) => {
+                    return (
+                      <DropdownMenuItem
+                        key={filter.label}
+                        onClick={() => handleRoleFilterChange(filter.value)}
+                      >
+                        {filter.label}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                className="min-w-[100px] h-full"
+                onClick={() => setIsCreateViolationModalOpen(true)}
+              >
+                <FilePenLine />
+                New
+              </Button>
+            </div>
           </div>
 
-          <div className="flex flex-1">
-            {fetching ? (
-              <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
-                <RingLoader />
-                <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
-              </div>
-            ) : !fetching && originalViolations.length > 0 ? (
-              <div className="flex flex-col w-full justify-between">
-                <ViolationsTable violations={originalViolations} />
-                <PaginationControls
-                  currentPage={page}
-                  totalPages={queryResults?.totalPages || 1}
-                  prev={() => setPage((prev) => Math.max(prev - 1, 1))}
-                  next={() => setPage((prev) => prev + 1)}
-                  setPage={setPage}
-                  hasPrev={page > 1}
-                  hasNext={!!queryResults?.hasNextPage}
-                />
-              </div>
-            ) : (
+          <div className="flex flex-1 flex-col justify-between">
+            {isFetching ? (
+              <ContentLoading />
+            ) : isError || violations.length === 0 ? (
               <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
                 <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
-                <p className="font-semibold font-mono">NO VIOLATION RECORDS FOUND</p>
+                <p className="font-semibold font-mono">NO VIOLATION FOUND</p>
+              </div>
+            ) : (
+              <div className="flex w-full">
+                <ViolationsTable violations={violations} />
               </div>
             )}
+            <PaginationControls
+              currentPage={page}
+              totalPages={fetchedViolationData?.totalPages || 1}
+              prev={() => setPage((prev) => Math.max(prev - 1, 1))}
+              next={() => setPage((prev) => prev + 1)}
+              setPage={setPage}
+              hasPrev={page > 1}
+              hasNext={!!fetchedViolationData?.hasNextPage}
+            />
           </div>
         </div>
       </div>
-      <ViolationCreateModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} />
+
+      <ViolationCreateModal
+        isOpen={isCreateViolationModalOpen}
+        onClose={() => setIsCreateViolationModalOpen(false)}
+      />
     </>
   );
 }

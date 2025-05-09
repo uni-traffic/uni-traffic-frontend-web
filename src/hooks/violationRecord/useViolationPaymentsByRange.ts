@@ -12,6 +12,6 @@ export const useViolationPaymentsByRange = ({
     queryKey: ["violationPayments", startDate, endDate],
     queryFn: () => getViolationPaymentsByRange({ startDate, endDate }),
     enabled: !!startDate && !!endDate,
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };

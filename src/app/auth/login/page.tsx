@@ -1,22 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Header } from "@/components/common/header";
+import { Header } from "@/components/common/Header";
+import { LoadingScreen } from "@/components/common/LoadingScreen";
+import { useAuth } from "@/context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { LoadingScreen } from "@/components/common/loading-screen";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Login() {
   const { signInWithGoogle, login, user, isLoading, error } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-
-  // testing the error message
-  const handleLogin = () => {
-    login(userName, password);
-  };
 
   useEffect(() => {
     if (!isLoading && user) router.push("/dashboard");
@@ -58,22 +54,10 @@ export default function Login() {
                     signInWithGoogle(response.credential!);
                   }}
                   onError={() => {
-                    console.log("Login Failed");
+                    toast.error("We couldn’t sign you in with Google. Please try again.");
                   }}
                   width={"300"}
                 />
-                {/*<button*/}
-                {/*  className="w-75 p-2 m-3 bg-white border border-gray-500 rounded-md flex items-center justify-center gap-2 shadow-md hover:opacity-70 cursor-pointer"*/}
-                {/*  type={ "button" }*/}
-                {/*  onClick={() => handleGoogleLogIn()}*/}
-                {/*>*/}
-                {/*  <img*/}
-                {/*    src="/googleLogo.png"*/}
-                {/*    alt="Google Logo"*/}
-                {/*    className="w-4 h-auto"*/}
-                {/*  />*/}
-                {/*  <span className="text-sm font-medium">Sign in with Google</span>*/}
-                {/*</button>*/}
                 <p
                   className={`mt-3 text-xs mb-2 ${error ? "text-red-500 font-semibold bg-red-300 p-1 rounded-xs" : "text-gray-500"}`}
                 >
@@ -94,7 +78,7 @@ export default function Login() {
                   value={password}
                 />
                 <button
-                  onClick={handleLogin}
+                  onClick={() => login(userName, password)}
                   className="w-75 p-2 mt-4 bg-black text-white font-semibold rounded-md mb-10 hover:opacity-85 cursor-pointer"
                   type={"button"}
                 >

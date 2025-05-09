@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/context/AuthContext";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 

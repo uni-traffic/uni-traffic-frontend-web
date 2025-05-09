@@ -12,6 +12,6 @@ export const useUserSignInActivityByRange = ({
     queryKey: ["userSignInActivity", startDate, endDate],
     queryFn: () => getUserSignInActivityByRange({ startDate, endDate }),
     enabled: !!startDate && !!endDate,
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };

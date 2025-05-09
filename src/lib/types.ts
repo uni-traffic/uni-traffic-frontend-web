@@ -174,3 +174,9 @@ export interface GetViolationResponse {
   totalPages: number;
   isDeleted: boolean;
 }
+
+export interface UserLoginResponse {
+  user: User;
+  appKey: string;
+  accessToken: string;
+}

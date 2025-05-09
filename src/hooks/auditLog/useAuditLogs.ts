@@ -30,7 +30,6 @@ export const useAuditLogs = ({
         page
       }),
     queryKey: ["auditLog"],
-    staleTime: 60 * 1000,
-    retry: false
+    placeholderData: (prev) => prev
   });
 };

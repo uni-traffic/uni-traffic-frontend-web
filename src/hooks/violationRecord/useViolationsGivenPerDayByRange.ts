@@ -12,6 +12,6 @@ export const useViolationsGivenPerDayByRange = ({
     queryKey: ["violationsPerDay", startDate, endDate],
     queryFn: () => getViolationsGivenPerDayByRange({ startDate, endDate }),
     enabled: !!startDate && !!endDate,
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };

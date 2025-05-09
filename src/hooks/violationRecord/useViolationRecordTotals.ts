@@ -5,6 +5,6 @@ export const useViolationRecordTotals = () => {
   return useQuery({
     queryKey: ["violationRecordTotals"],
     queryFn: getViolationRecordTotals,
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };

@@ -12,6 +12,6 @@ export const useVehicleApplicationCountByStatus = (
   return useQuery({
     queryKey: ["vehicleApplicationCountByStatus", status],
     queryFn: () => getVehicleApplicationCountByStatus({ status }),
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };

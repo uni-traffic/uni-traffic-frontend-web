@@ -35,7 +35,6 @@ export const useViolations = ({
         page
       }),
     enabled: count > 0 && page > 0,
-    staleTime: 60 * 1000,
     placeholderData: (prev) => prev
   });
 };

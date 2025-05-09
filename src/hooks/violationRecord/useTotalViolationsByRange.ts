@@ -14,6 +14,6 @@ export const useTotalViolationsByRange = ({
     queryKey: ["totalViolationsByRange", startDate, endDate, type],
     queryFn: () => getTotalViolationsByRange({ startDate, endDate, type }),
     enabled: !!startDate && !!endDate && !!type,
-    staleTime: 60 * 1000
+    placeholderData: (prev) => prev
   });
 };
