@@ -1,7 +1,8 @@
 "use client";
 
-import SearchInput from "@/components/applications-table/search-input";
-import CashierStickerApplicationTable from "@/components/cashier/cashier-sticker-application-table";
+import { PaginationControls } from "@/components/common/PaginationControls";
+import { SearchInput } from "@/components/common/SearchInput";
+import { CashierVehicleApplicationTable } from "@/components/tables/vehicleApplication/CashierVehicleApplicationTable";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,17 +10,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
 import { useVehicleApplications } from "@/hooks/vehicleApplication/useVehicleApplications";
 import type { VehicleApplication } from "@/lib/types";
 import { FileX2, Filter } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 
 const statusOptions = [
@@ -32,35 +26,45 @@ const statusOptions = [
 ];
 
 const ApplicationPage = () => {
-  const { data: applications = [], isLoading } = useVehicleApplications({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }>({
     value: "ALL",
     label: "ALL"
   });
 
-  const filteredApplications = (applications as VehicleApplication[]).filter((application) => {
-    const matchesSearch =
-      !searchQuery.trim() ||
-      application.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.applicant?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.vehicle.licensePlate.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus =
-      statusFilter.value === "ALL" ||
-      application.status.toUpperCase() === statusFilter.value.toUpperCase();
-
-    return matchesSearch && matchesStatus;
+  const {
+    data: vehicleApplicationsData,
+    isFetching,
+    isError
+  } = useVehicleApplications({
+    count: 7,
+    page: page,
+    ...(statusFilter.value !== "ALL" && { status: statusFilter.value }),
+    ...(appliedSearchQuery.trim() !== "" && { searchKey: appliedSearchQuery })
   });
+
+  const vehicleApplications: VehicleApplication[] =
+    vehicleApplicationsData?.vehicleApplication ?? [];
+
+  const handleSearch = () => {
+    setAppliedSearchQuery(searchQuery);
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setAppliedSearchQuery("");
+      setPage(1);
+    }
+  }, [searchQuery]);
 
   return (
     <div className="flex flex-1 flex-col h-full bg-gray-50 p-8 animate-fade-in">
       <div className="flex flex-1 flex-col p-6 w-full rounded-lg shadow-sm border mx-auto animate-fade-in">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-1">Vehicle Sticker Application</h1>
-          {/*<p className="text-muted-foreground">Welcome to your vehicle management dashboard</p>*/}
+          <h1 className="text-3xl font-bold text-foreground mb-1">Vehicle Sticker Applications</h1>
         </div>
 
         <div className="mb-6 flex justify-between items-center gap-4 flex-col sm:flex-row">
@@ -68,8 +72,8 @@ const ApplicationPage = () => {
             <SearchInput
               value={searchQuery}
               onChange={setSearchQuery}
-              onSearch={() => console.log("Search")}
-              placeholder="Search User or Reference No..."
+              onSearch={handleSearch}
+              placeholder="Search"
             />
           </div>
 
@@ -93,29 +97,28 @@ const ApplicationPage = () => {
         </div>
 
         <div className="flex flex-1">
-          {isLoading ? (
+          {isFetching && vehicleApplications.length === 0 ? (
             <div className="flex flex-col space-y-6 justify-center items-center w-full h-full border border-solid rounded-lg">
               <RingLoader />
               <p className="font-semibold mt-4 animate-pulse font-mono">Fetching Data</p>
             </div>
-          ) : filteredApplications.length > 0 ? (
-            <div className="flex flex-col w-full justify-between">
-              <CashierStickerApplicationTable applications={filteredApplications} />
-              <Pagination className="w-full">
-                <PaginationContent className="flex justify-between w-full">
-                  <PaginationItem className="cursor-pointer">
-                    <PaginationPrevious />
-                  </PaginationItem>
-                  <PaginationItem className="cursor-pointer">
-                    <PaginationNext />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          ) : (
+          ) : isError || vehicleApplications.length === 0 ? (
             <div className="border rounded-md flex flex-1 flex-col space-y-6 justify-center items-center">
               <FileX2 className="text-black w-18 h-18 mb-4 transform hover:scale-x-[-1] transition-transform duration-300 ease-in-out" />
               <p className="font-semibold font-mono">NO VEHICLE APPLICATIONS FOUND</p>
+            </div>
+          ) : (
+            <div className="flex flex-col w-full justify-between">
+              <CashierVehicleApplicationTable applications={vehicleApplications} />
+              <PaginationControls
+                currentPage={page}
+                totalPages={vehicleApplicationsData?.totalPages || 1}
+                prev={() => setPage((prev) => Math.max(prev - 1, 1))}
+                next={() => setPage((prev) => prev + 1)}
+                setPage={setPage}
+                hasPrev={page > 1}
+                hasNext={!!vehicleApplicationsData?.hasNextPage}
+              />
             </div>
           )}
         </div>

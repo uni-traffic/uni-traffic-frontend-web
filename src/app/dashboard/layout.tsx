@@ -1,5 +1,5 @@
-import { ProtectedLayout } from "@/components/auth/protected-layout";
-import { AppSidebar } from "@/components/sidebar/sidebar";
+import { ProtectedLayout } from "@/components/auth/ProtectedLayout";
+import { AppSidebar } from "@/components/sidebar/SideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { ReactNode } from "react";
 

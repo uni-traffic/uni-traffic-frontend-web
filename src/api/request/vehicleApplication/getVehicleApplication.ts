@@ -1,25 +1,36 @@
 import api from "@/api/axios";
-import type { VehicleApplicationStatus, VehicleApplicationUserType } from "@/lib/types";
 import type { AxiosError } from "axios";
 
-export const getVehicleApplication = async ({
+export const getVehicleApplications = async ({
   id,
   schoolId,
   driverLicenseId,
+  driverLastName,
+  driverFirstName,
+  firstName,
+  lastName,
   licensePlate,
   status,
   applicantId,
   userType,
-  count = 25,
-  page = 1
+  sort,
+  searchKey,
+  count,
+  page
 }: {
   id?: string;
   schoolId?: string;
   driverLicenseId?: string;
+  driverLastName?: string;
+  driverFirstName?: string;
+  firstName?: string;
+  lastName?: string;
   licensePlate?: string;
-  status?: VehicleApplicationStatus;
+  status?: string;
   applicantId?: string;
-  userType?: VehicleApplicationUserType;
+  userType?: string;
+  sort?: "1" | "2";
+  searchKey?: string;
   count?: number;
   page?: number;
 }) => {
@@ -29,10 +40,16 @@ export const getVehicleApplication = async ({
         id,
         schoolId,
         driverLicenseId,
+        driverLastName,
+        driverFirstName,
+        firstName,
+        lastName,
         licensePlate,
         status,
         applicantId,
         userType,
+        sort,
+        searchKey,
         count,
         page
       }
@@ -41,8 +58,7 @@ export const getVehicleApplication = async ({
     return response.data;
   } catch (err) {
     const error = err as AxiosError;
-    console.log(error);
-
+    console.error(error);
     throw new Error(error.message);
   }
 };

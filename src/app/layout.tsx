@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { MaintenanceWrapper } from "@/components/common/maintenance";
-import { ReactQueryProvider } from "@/components/common/query-provider";
+import { MaintenanceWrapper } from "@/components/common/Maintenance";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/context/auth-context";
+import { AuthProvider } from "@/context/AuthContext";
+import { ReactQueryProvider } from "@/context/QueryProvider";
 import type { ReactNode } from "react";
 
 const geistSans = Geist({

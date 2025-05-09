@@ -16,7 +16,7 @@ interface FilterSelectProps {
   className?: string;
 }
 
-const FilterSelect: React.FC<FilterSelectProps> = ({
+export const FilterSelect: React.FC<FilterSelectProps> = ({
   label,
   value,
   onChange,
@@ -43,5 +43,3 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
     </div>
   );
 };
-
-export default FilterSelect;
