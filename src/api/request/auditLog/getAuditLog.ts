@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import { handleApiRequestError } from "@/lib/utils";
 import type { AxiosError } from "axios";
 
 export const getAuditLog = async ({
@@ -33,9 +34,6 @@ export const getAuditLog = async ({
 
     return response.data;
   } catch (err) {
-    const error = err as AxiosError;
-    console.log(error);
-
-    throw new Error(error.message);
+    handleApiRequestError(err as AxiosError, "Something went wrong fetching audit-logs");
   }
 };

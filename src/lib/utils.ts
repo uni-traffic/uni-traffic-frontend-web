@@ -1,4 +1,5 @@
 import type { ViolationRecord, ViolationRecordAuditLog } from "@/lib/types";
+import type { AxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -106,4 +107,14 @@ export const getDateForRange = (value: string) => {
   }
 
   return today;
+};
+
+export const handleApiRequestError = (error: AxiosError, defaultMessage: string) => {
+  if (error.status === 404) {
+    console.warn(error.message);
+  } else {
+    console.error(error.message ?? defaultMessage);
+  }
+
+  throw new Error(error.message ?? defaultMessage);
 };

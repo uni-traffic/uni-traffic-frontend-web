@@ -3,7 +3,7 @@ import type { AxiosError } from "axios";
 
 export const payViolationRecord = async (payload: {
   violationRecordId: string;
-  amountPaid: number;
+  cashTendered: number;
 }) => {
   try {
     const response = await api.post("/payment/violation", payload);

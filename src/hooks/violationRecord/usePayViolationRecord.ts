@@ -8,7 +8,7 @@ import {
 
 type Payload = {
   violationRecordId: string;
-  amountPaid: number;
+  cashTendered: number;
 };
 
 export const usePayViolationRecord = (

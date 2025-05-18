@@ -44,7 +44,7 @@ export const ViolationRecordsTable = ({
               const user = record.user;
 
               return (
-                <tr key={record.id} className="bg-card hover:bg-muted/50 transition-colors">
+                <tr key={record.id} className="h-16 bg-card hover:bg-muted/50 transition-colors">
                   <td className="py-3.5 px-4 font-bold">{record.id}</td>
                   <td className="py-3.5 px-4 text-sm text-muted-foreground">
                     <div className="font-medium">
@@ -71,7 +71,9 @@ export const ViolationRecordsTable = ({
                     ) : (
                       <span className="flex flex-col gap-0.5 text-center text-xs ">
                         <p className="font-bold">PAID ON</p>
-                        <p className="">{format(new Date(), "MMMM dd, yyyy hh:mm a")}</p>
+                        <p className="">
+                          {format(new Date(record.payment?.timePaid!), "MMMM dd, yyyy hh:mm a")}
+                        </p>
                         <button
                           type="button"
                           className="underline text-blue-500"

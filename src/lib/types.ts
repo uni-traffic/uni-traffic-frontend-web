@@ -90,9 +90,11 @@ export interface ViolationRecordPayment {
   id: string;
   cashierId: string;
   violationRecordId: string;
-  amountPaid: number;
-  remarks: string | null;
-  timePaid: Date;
+  amountDue: number;
+  cashTendered: number;
+  change: number;
+  totalAmountPaid: number;
+  timePaid: string;
   cashier: User | null;
   violationRecord: ViolationRecord | null;
 }

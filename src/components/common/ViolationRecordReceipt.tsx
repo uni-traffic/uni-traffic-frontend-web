@@ -45,6 +45,10 @@ export const ViolationRecordReceipt = ({ violation }: ReceiptProps) => {
               <span>{violation?.payment?.id}</span>
             </div>
             <div className="flex justify-between">
+              <strong>Violation ID:</strong>
+              <span>{violation?.id}</span>
+            </div>
+            <div className="flex justify-between">
               <strong>Date/Time:</strong>
               {violation?.payment?.timePaid ? (
                 <span>
@@ -53,16 +57,20 @@ export const ViolationRecordReceipt = ({ violation }: ReceiptProps) => {
               ) : null}
             </div>
             <div className="flex justify-between">
-              <strong>Violation ID:</strong>
-              <span>{violation?.id}</span>
-            </div>
-            <div className="flex justify-between">
               <strong>Cashier:</strong>
               <span>{`${violation?.payment?.cashier?.firstName} ${violation?.payment?.cashier?.lastName}`}</span>
             </div>
             <div className="flex justify-between">
-              <strong>Amount Paid:</strong>
-              <span>PHP {violation?.payment?.amountPaid?.toFixed(2)}</span>
+              <strong>Amount Due:</strong>
+              <span>PHP {violation?.payment?.amountDue.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <strong>Cash Tendered:</strong>
+              <span>PHP {violation?.payment?.cashTendered.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <strong>Change:</strong>
+              <span>PHP {violation?.payment?.change.toFixed(2)}</span>
             </div>
           </div>
         </div>
