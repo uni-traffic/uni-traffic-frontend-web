@@ -40,8 +40,8 @@ export const AdminDashboard = () => {
   }, [violationsGiven]);
 
   const getViolationsPaymentCollected = useCallback(() => {
-    return ((violationPaymentCollected ?? []) as { amountPaid: number }[]).reduce(
-      (sum, item) => sum + (item.amountPaid || 0),
+    return ((violationPaymentCollected ?? []) as { totalAmountPaid: number }[]).reduce(
+      (sum, item) => sum + (item.totalAmountPaid || 0),
       0
     );
   }, [violationPaymentCollected]);

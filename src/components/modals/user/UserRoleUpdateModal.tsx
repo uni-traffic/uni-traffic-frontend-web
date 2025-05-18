@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useUpdateUserRole } from "@/hooks/user/useUpdateUserRole";
 import type { Role, User } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ const roles: { value: Role; label: string }[] = [
 ];
 
 export const UserRoleUpdateModal = ({ user, isOpen, onClose }: RoleUpdateModalProps) => {
+  const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<string | undefined>(user?.role);
   const { user: authUser } = useAuth();
 
@@ -53,6 +55,7 @@ export const UserRoleUpdateModal = ({ user, isOpen, onClose }: RoleUpdateModalPr
       },
       {
         onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: ["users"] });
           onClose();
           toast.success(`Successfully updated ${data.firstName}'s role to ${data.role}.`);
         },
@@ -110,13 +113,19 @@ export const UserRoleUpdateModal = ({ user, isOpen, onClose }: RoleUpdateModalPr
         </div>
 
         <DialogFooter className="sm:justify-center gap-2 mt-4">
-          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={!selectedRole || selectedRole === user.role}
+            disabled={!selectedRole || selectedRole === user.role || isLoading}
             className="w-full sm:w-auto"
           >
             {isLoading ? (

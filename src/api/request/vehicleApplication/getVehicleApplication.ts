@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import { handleApiRequestError } from "@/lib/utils";
 import type { AxiosError } from "axios";
 
 export const getVehicleApplications = async ({
@@ -57,8 +58,6 @@ export const getVehicleApplications = async ({
 
     return response.data;
   } catch (err) {
-    const error = err as AxiosError;
-    console.error(error);
-    throw new Error(error.message);
+    handleApiRequestError(err as AxiosError, "Something went wrong fetching vehicle applications");
   }
 };

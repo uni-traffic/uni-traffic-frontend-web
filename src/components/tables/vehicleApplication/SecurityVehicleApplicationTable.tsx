@@ -67,9 +67,8 @@ export const SecurityVehicleApplicationTable = ({
                       <span className="flex flex-col gap-0.5 text-center text-xs ">
                         <p className="font-bold">
                           {" "}
-                          {record.status === "REJECTED" ? "REJECTED" : "APPROVED"} ON
+                          {record.status === "REJECTED" ? "REJECTED" : "APPROVED"}
                         </p>
-                        <p className="">{format(record.updatedAt, "MMMM dd, yyyy hh:mm a")}</p>
                         <button
                           type="button"
                           className="underline text-blue-500 font-bold"

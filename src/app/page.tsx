@@ -16,9 +16,12 @@ export default function Home() {
             <Button className="w-[12vw] min-w-[129px]" asChild>
               <Link href="/auth/login">Get Started</Link>
             </Button>
-            <p className="max-w-[600px] text-sm text-black">
-              UniTraffic ensures hassle-free vehicle entry at New Era University by verifying
-              sticker registration and tracking violations with a quick scan.
+            <p className="max-w-[600px] mt-20 text-sm/6 text-black tracking-wide">
+              UniTraffic simplifies vehicle access at New Era University by offering quick and
+              secure sticker registration verification, violation tracking, and efficient role-based
+              access for students, staff, and admins. With a simple search, vehicles are verified,
+              and violations are easily monitored, view ownership details, violation history, and
+              issue tickets directly.
             </p>
           </div>
         </div>
