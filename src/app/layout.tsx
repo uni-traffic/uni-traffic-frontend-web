@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { MaintenanceWrapper } from "@/components/common/Maintenance";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { ReactQueryProvider } from "@/context/QueryProvider";
-import Head from "next/head";
 import type { ReactNode } from "react";
 
 const geistSans = Geist({
@@ -16,6 +15,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"]
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-roboto"
 });
 
 export const metadata: Metadata = {
@@ -30,13 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
+      >
         <MaintenanceWrapper>
           <ReactQueryProvider>
             <AuthProvider>{children}</AuthProvider>

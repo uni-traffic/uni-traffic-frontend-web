@@ -6,6 +6,9 @@ const config: Config = {
   plugins: [TailwindAnimate],
   theme: {
     extend: {
+      fontFamily: {
+        roboto: ["var(--font-roboto)"]
+      },
       colors: {
         "green-start": "#42d126",
         "green-end": "#26d15f"

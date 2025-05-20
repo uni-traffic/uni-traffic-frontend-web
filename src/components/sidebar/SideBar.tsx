@@ -7,6 +7,7 @@ import {
   ChevronsRight,
   FilePenLine,
   Home,
+  KeyboardMusic,
   Settings2,
   Users
 } from "lucide-react";
@@ -52,7 +53,7 @@ const items = [
   {
     title: "Vehicle Sticker",
     url: "/dashboard/sticker",
-    icon: CarFront,
+    icon: KeyboardMusic,
     accessRole: ["CASHIER"]
   },
   {
@@ -62,13 +63,18 @@ const items = [
     accessRole: []
   },
   {
+    title: "Vehicles",
+    url: "/dashboard/vehicles",
+    icon: CarFront,
+    accessRole: ["SECURITY", "ADMIN", "SUPERADMIN"]
+  },
+  {
     title: "Violations",
     url: "/dashboard/violations",
     icon: FilePenLine,
     accessRole: ["ADMIN", "SUPERADMIN"]
   }
 ];
-
 export const AppSidebar = () => {
   const { state, toggleSidebar } = useSidebar();
   const { user } = useAuth();
