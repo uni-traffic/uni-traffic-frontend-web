@@ -1,3 +1,4 @@
+import { NeuImage } from "@/components/common/NeuImage";
 import {
   Carousel,
   CarouselContent,
@@ -29,12 +30,7 @@ export const VehicleImageCarousel = ({ images }: VehicleImageCarouselProps) => {
           <CarouselItem key={1 + (index + 1)}>
             <div className="p-1">
               <div className="flex flex-col gap-2 items-center">
-                <img
-                  src={image.url}
-                  alt={image.alt}
-                  className="w-full h-[280px] object-contain rounded-md border"
-                  onClick={() => window.open(image.url, "_blank")}
-                />
+                <NeuImage image={image.url} alt={image.alt} />
                 <p className="text-sm font-medium text-center">{image.alt}</p>
               </div>
             </div>

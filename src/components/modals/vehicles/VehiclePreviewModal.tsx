@@ -3,84 +3,28 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { useUpdateVehicleApplicationStatus } from "@/hooks/vehicleApplication/useUpdateVehicleApplicationStatus";
-import type { ImageLink, VehicleApplication } from "@/lib/types";
-import { useQueryClient } from "@tanstack/react-query";
+import type { ImageLink, Vehicle } from "@/lib/types";
 import { X } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { VehicleImageCarousel } from "../../common/VehicleImageCarousel";
 
-interface ApplicationModalProps {
-  application: VehicleApplication | null;
+interface VehicleModalProps {
+  vehicle: Vehicle | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const VehicleApplicationReviewModal = ({
-  application,
-  isOpen,
-  onClose
-}: ApplicationModalProps) => {
-  const queryClient = useQueryClient();
-  const [remarks, setRemarks] = useState("");
-
-  const { mutate: updateVehicleApplicationStatus, isPending } = useUpdateVehicleApplicationStatus();
-
-  if (!application) return null;
-
-  const handleApprove = () => {
-    updateVehicleApplicationStatus(
-      {
-        vehicleApplicationId: application.id,
-        newStatus: "PENDING_FOR_PAYMENT",
-        remarks: remarks
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["vehicleApplications"] });
-          toast.success("Application has been approved");
-          onClose();
-        },
-        onError: () => toast.error("Error submitting approving application")
-      }
-    );
-  };
-
-  const handleReject = () => {
-    if (remarks.trim().length === 0) {
-      toast.error("You must define remarks when rejecting an application.");
-      return;
-    }
-
-    updateVehicleApplicationStatus(
-      {
-        vehicleApplicationId: application.id,
-        newStatus: "REJECTED",
-        remarks: remarks
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["vehicleApplications"] });
-          toast.success("Application has been approved");
-          onClose();
-        },
-        onError: () => toast.error("Error submitting approving application")
-      }
-    );
-  };
+export const VehiclePreviewModal = ({ vehicle, isOpen, onClose }: VehicleModalProps) => {
+  if (!vehicle) return null;
 
   const vehicleImages: ImageLink[] = [
-    { url: application.vehicle.frontImage, alt: "Front View" },
-    { url: application.vehicle.sideImage, alt: "Side View" },
-    { url: application.vehicle.backImage, alt: "Rear View" }
+    { url: vehicle.images.front, alt: "Front View" },
+    { url: vehicle.images.side, alt: "Side View" },
+    { url: vehicle.images.back, alt: "Rear View" }
   ];
 
   return (
@@ -88,22 +32,19 @@ export const VehicleApplicationReviewModal = ({
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 rounded-lg">
         <DialogHeader className="p-6 pb-2 sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-semibold">Vehicle Application Review</DialogTitle>
+            <DialogTitle className="text-2xl font-semibold">Vehicle Details</DialogTitle>
             <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-8 w-8">
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Review the application details before approving or rejecting
-          </DialogDescription>
         </DialogHeader>
 
         <div className="p-6">
-          <Tabs defaultValue="staff" className="w-full">
+          <Tabs defaultValue="vehicle" className="w-full">
             <TabsList className="w-full grid grid-cols-3 mb-6">
-              <TabsTrigger value="staff">Staff/Student Form</TabsTrigger>
-              <TabsTrigger value="driver">Driver Form</TabsTrigger>
-              <TabsTrigger value="vehicle">Vehicle Form</TabsTrigger>
+              <TabsTrigger value="vehicle">Vehicle Details</TabsTrigger>
+              <TabsTrigger value="staff">Staff/Student Details</TabsTrigger>
+              <TabsTrigger value="driver">Driver Details</TabsTrigger>
             </TabsList>
 
             <TabsContent value="staff" className="space-y-4 animate-fade-in">
@@ -112,7 +53,7 @@ export const VehicleApplicationReviewModal = ({
                   <div>
                     <label className="text-xs text-muted-foreground">School ID</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.schoolMember.schoolId}
+                      {vehicle.schoolMember.schoolId}
                     </div>
                   </div>
 
@@ -120,13 +61,13 @@ export const VehicleApplicationReviewModal = ({
                     <div>
                       <label className="text-xs text-muted-foreground">First Name</label>
                       <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                        {application.schoolMember.firstName}
+                        {vehicle.schoolMember.firstName}
                       </div>
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground">Last Name</label>
                       <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                        {application.schoolMember.lastName}
+                        {vehicle.schoolMember.lastName}
                       </div>
                     </div>
                   </div>
@@ -134,7 +75,7 @@ export const VehicleApplicationReviewModal = ({
                   <div>
                     <label className="text-xs text-muted-foreground">Type</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.schoolMember.type}
+                      {vehicle.schoolMember.type}
                     </div>
                   </div>
                 </div>
@@ -143,7 +84,7 @@ export const VehicleApplicationReviewModal = ({
                   <label className="text-sm font-medium mb-2 block">School Credentials</label>
                   <div className="mt-2 border rounded-md overflow-hidden">
                     <NeuImage
-                      image={application.schoolMember.schoolCredential}
+                      image={vehicle.schoolMember.schoolCredential}
                       alt="School Credentials"
                       className="h-[200px]"
                     />
@@ -161,14 +102,14 @@ export const VehicleApplicationReviewModal = ({
                   <div>
                     <label className="text-xs text-muted-foreground">First Name</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.driver.firstName}
+                      {vehicle.driver.firstName}
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs text-muted-foreground">Last Name</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.driver.lastName}
+                      {vehicle.driver.lastName}
                     </div>
                   </div>
                 </div>
@@ -176,7 +117,7 @@ export const VehicleApplicationReviewModal = ({
                 <div className="mb-6">
                   <label className="text-xs text-muted-foreground">License ID</label>
                   <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                    {application.driver.licenseId}
+                    {vehicle.driver.licenseId}
                   </div>
                 </div>
 
@@ -184,14 +125,14 @@ export const VehicleApplicationReviewModal = ({
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Driver's License</label>
                     <div className="border rounded-md overflow-hidden">
-                      <NeuImage image={application.driver.licenseImage} alt={"Driver's License"} />
+                      <NeuImage image={vehicle.driver.licenseImage} alt={"Driver's License"} />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Driver's Picture</label>
                     <div className="border rounded-md overflow-hidden">
-                      <NeuImage image={application.driver.selfiePicture} alt="Driver's Picture" />
+                      <NeuImage image={vehicle.driver.selfiePicture} alt="Driver's Picture" />
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground text-center col-span-2">
@@ -207,14 +148,14 @@ export const VehicleApplicationReviewModal = ({
                   <div>
                     <label className="text-xs text-muted-foreground">Make</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.vehicle.make}
+                      {vehicle.make}
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs text-muted-foreground">Series</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.vehicle.series}
+                      {vehicle.series}
                     </div>
                   </div>
                 </div>
@@ -223,14 +164,14 @@ export const VehicleApplicationReviewModal = ({
                   <div>
                     <label className="text-xs text-muted-foreground">Type</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.vehicle.type}
+                      {vehicle.type}
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs text-muted-foreground">Model</label>
                     <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                      {application.vehicle.model}
+                      {vehicle.model}
                     </div>
                   </div>
                 </div>
@@ -238,7 +179,7 @@ export const VehicleApplicationReviewModal = ({
                 <div className="mb-6">
                   <label className="text-xs text-muted-foreground">License Plate</label>
                   <div className="text-sm font-medium p-2 border rounded bg-muted/30">
-                    {application.vehicle.licensePlate}
+                    {vehicle.licensePlate}
                   </div>
                 </div>
 
@@ -247,7 +188,7 @@ export const VehicleApplicationReviewModal = ({
                     <label className="text-sm font-medium">Certificate of Registration</label>
                     <div className="border rounded-md overflow-hidden">
                       <NeuImage
-                        image={application.vehicle.certificateOfRegistration}
+                        image={vehicle.images.registration}
                         alt={"Certificate of Registration"}
                       />
                     </div>
@@ -256,10 +197,7 @@ export const VehicleApplicationReviewModal = ({
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Official Receipt</label>
                     <div className="border rounded-md overflow-hidden">
-                      <NeuImage
-                        image={application.vehicle.officialReceipt}
-                        alt="Official Receipt"
-                      />
+                      <NeuImage image={vehicle.images.receipt} alt="Official Receipt" />
                     </div>
                   </div>
                 </div>
@@ -276,53 +214,12 @@ export const VehicleApplicationReviewModal = ({
               </div>
             </TabsContent>
           </Tabs>
-
-          {application.remarks && application.status === "REJECTED" ? (
-            <div className="mt-6">
-              <label className="text-sm font-medium mb-2 block">Remarks:</label>
-              <div className="text-sm p-2 border rounded bg-muted/30 min-h-[100px]">
-                {application.remarks || ""}
-              </div>
-            </div>
-          ) : application.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
-            <div className="mt-6">
-              <label className="text-sm font-medium mb-2 block">Remarks:</label>
-              <Textarea
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                placeholder="Add remarks here..."
-                className="min-h-[100px]"
-                disabled={application.status !== "PENDING_FOR_SECURITY_APPROVAL"}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {application.status === "PENDING_FOR_SECURITY_APPROVAL"
-                  ? "Remarks are required to reject this application."
-                  : `Previous remarks: ${application.remarks || "None"}`}
-              </p>
-            </div>
-          ) : null}
         </div>
 
         <DialogFooter className="sticky bottom-0 p-4 border-t bg-background/95 backdrop-blur-sm">
-          {application.status === "PENDING_FOR_SECURITY_APPROVAL" ? (
-            <div className="flex w-full justify-end gap-4">
-              <Button
-                variant="destructive"
-                onClick={handleReject}
-                disabled={isPending}
-                className="px-6"
-              >
-                {isPending ? "Processing..." : "Reject Application"}
-              </Button>
-              <Button onClick={handleApprove} disabled={isPending} className="px-6">
-                {isPending ? "Processing..." : "Approve Application"}
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={onClose} className="ml-auto">
-              Close
-            </Button>
-          )}
+          <Button onClick={onClose} className="ml-auto">
+            Close
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
